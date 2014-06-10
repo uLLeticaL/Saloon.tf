@@ -1,0 +1,52 @@
+body
+  .items-header
+    overflow: auto
+    margin-bottom: 10px
+    h2
+      display: inline-block
+      margin-top: 6px
+      margin-bottom: 0
+  .items
+    text-align: center
+    overflow: auto
+    @media screen and (min-width: $screen-lg-min)
+      padding-left: 38px
+    @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max)
+      padding-left: 64px
+    .item
+      float: left
+      padding: 5px
+      margin: 5px
+      border: solid 2px $design-item
+      border-radius: $border-radius-base
+      .check
+        display: none
+      &:hover
+        cursor: pointer
+      &.active
+        background-color: $item-hl
+        border-color: $item-hl-border
+        position: relative
+        .check
+          position: absolute
+          top: 0
+          right: 0
+          width: 38px
+          height: 38px
+          background: -webkit-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
+          background:    -moz-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
+          background:      -o-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
+          background:         linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
+          display: block
+          .fa-check
+            position: absolute
+            top: 5px
+            right: 1px
+            margin: 0
+  .progress
+    margin-bottom: 0
+    .countdown
+      -webkit-transition: width 60.0s linear !important
+      -moz-transition: width 60.0s linear !important
+      -o-transition: width 60.0s linear !important
+      transition: width 60.0s linear !important

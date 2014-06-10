@@ -1,0 +1,64 @@
+body
+  .manage
+    .well
+      overflow: auto
+      .details
+        float: left
+        padding: 10px
+        h2, h3
+          margin: 0 0 10px 0
+          &:nth-last-child(1)
+            margin: 0
+      &.league
+        .league-badge
+          float: left
+          padding: 15px 10px
+          margin-right: 20px
+          border-radius: $border-radius-base
+      &.team
+        .team-avatar
+          float: left
+          max-height: 120px
+          margin-right: 20px
+          border-radius: $border-radius-base
+
+    .league-block
+      color: $gray-lighter
+      position: relative
+      float: left
+      width: 190px
+      height: 120px
+      margin-right: 20px
+      .league-badge
+        position: absolute
+        top: 0px
+        right: 0px
+        bottom: 0px
+        left: 0px
+        padding: 15px 10px
+        border-radius: $border-radius-base
+      .details-overlay
+        position: absolute
+        top: 0px
+        right: 0px
+        bottom: 0px
+        left: 0px
+        background: rgba(0, 0, 0, 0.9)
+        opacity: 0
+        border-radius: $border-radius-base
+        text-align: center
+        transition: opacity .2s ease-in
+        -moz-transition: opacity .2s ease-in
+        -webkit-transition: opacity .2s ease-in
+      &:hover
+        .league-badge
+          transition: all .2s ease-in
+          -moz-transition: all .2s ease-in
+          -webkit-transition: all .2s ease-in
+          -webkit-filter: blur(1px)
+          -moz-filter: blur(1px)
+          -o-filter: blur(1px)
+          -ms-filter: blur(1px)
+        .details-overlay
+          opacity: 1
+          cursor: pointer

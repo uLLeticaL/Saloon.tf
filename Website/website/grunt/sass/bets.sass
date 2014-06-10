@@ -1,0 +1,45 @@
+body
+  &.home
+    .bets
+      .bet
+        &:hover
+          cursor: pointer
+  .bets
+    .bet
+      min-height: 160px
+      margin: 15px 0
+      .league-badge
+        float: left
+        padding: 15px 10px
+        margin-right: 20px
+        border-radius: $border-radius-base
+      .team-0, .team-1
+        display: table
+        img
+          display: table-cell
+          max-width: 120px
+        .details
+          display: table-cell
+          vertical-align: top
+          padding: 0 10px
+          color: $design-hl
+          h2, h3
+            margin: 0 0 10px 0
+          .specifics
+            display: inline-block
+            font-size: $font-size-h3
+            text-align: left
+      .team-0
+        float: left
+        h2, h3
+          text-align: left
+        .details
+          .specifics
+            float: left
+      .team-1
+        float: right
+        h2, h3
+          text-align: right
+        .details
+          .specifics
+            float: right
