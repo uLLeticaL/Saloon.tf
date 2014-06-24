@@ -1,10 +1,10 @@
-# -*- encoding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from mako import runtime, filters, cache
 UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
 _magic_number = 9
-_modified_time = 1398090475.232708
+_modified_time = 1403562628.65853
 _enable_loop = True
 _template_filename = '/repos/saloon.tf/Website/website/templates/bet.mako'
 _template_uri = '/bet.mako'

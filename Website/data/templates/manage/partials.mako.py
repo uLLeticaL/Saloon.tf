@@ -1,13 +1,13 @@
-# -*- encoding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from mako import runtime, filters, cache
 UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
 _magic_number = 9
-_modified_time = 1398068680.279277
+_modified_time = 1403610346.879466
 _enable_loop = True
 _template_filename = u'/repos/saloon.tf/Website/website/templates/manage/partials.mako'
-_template_uri = u'/manage/teams/../partials.mako'
+_template_uri = u'/manage/partials.mako'
 _source_encoding = 'utf-8'
 from markupsafe import escape
 _exports = [u'menu', u'dashboardBets', u'dashboardFixtures']

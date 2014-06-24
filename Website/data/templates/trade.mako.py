@@ -1,10 +1,10 @@
-# -*- encoding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from mako import runtime, filters, cache
 UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
 _magic_number = 9
-_modified_time = 1397301166.442835
+_modified_time = 1403610087.537615
 _enable_loop = True
 _template_filename = '/repos/saloon.tf/Website/website/templates/trade.mako'
 _template_uri = '/trade.mako'
@@ -32,7 +32,7 @@ def render_body(context,**pageargs):
         # SOURCE LINE 1
         __M_writer(u'\n\n')
         # SOURCE LINE 7
-        __M_writer(u'\n\n<div class="container">\n  <div class="well">\n    <p><i class="fa fa-exclamation-triangle"></i> You must have pop ups enabled to send trade offer.</p>\n  </div>\n</div>')
+        __M_writer(u'\n\n<div class="container">\n  <div class="well">\n    <p><i class="fa fa-exclamation-triangle"></i> You must have pop ups enabled to send the trade offer.</p>\n  </div>\n</div>')
         return ''
     finally:
         context.caller_stack._pop_frame()
@@ -46,7 +46,7 @@ def render_head_tags(context):
         # SOURCE LINE 3
         __M_writer(u'\n  <script type="text/javascript">\n    window.open( "')
         # SOURCE LINE 5
-        __M_writer(escape(c.url))
+        __M_writer(c.url )
         __M_writer(u'", "_self" );\n  </script>\n')
         return ''
     finally:
