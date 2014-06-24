@@ -29,7 +29,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: bets; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: bets; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE bets (
@@ -42,10 +42,10 @@ CREATE TABLE bets (
 );
 
 
-ALTER TABLE public.bets OWNER TO cowboy;
+ALTER TABLE public.bets OWNER TO postgres;
 
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: betsIndividual_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE "betsIndividual_id_seq"
@@ -56,10 +56,10 @@ CREATE SEQUENCE "betsIndividual_id_seq"
     CACHE 1;
 
 
-ALTER TABLE public."betsIndividual_id_seq" OWNER TO cowboy;
+ALTER TABLE public."betsIndividual_id_seq" OWNER TO postgres;
 
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: betsIndividual_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE "betsIndividual_id_seq" OWNED BY bets.id;
@@ -156,7 +156,7 @@ CREATE TABLE countries (
 ALTER TABLE public.countries OWNER TO postgres;
 
 --
--- Name: items; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: items; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE items (
@@ -170,10 +170,10 @@ CREATE TABLE items (
 );
 
 
-ALTER TABLE public.items OWNER TO cowboy;
+ALTER TABLE public.items OWNER TO postgres;
 
 --
--- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE items_id_seq
@@ -184,17 +184,17 @@ CREATE SEQUENCE items_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.items_id_seq OWNER TO cowboy;
+ALTER TABLE public.items_id_seq OWNER TO postgres;
 
 --
--- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE items_id_seq OWNED BY items.id;
 
 
 --
--- Name: leagues; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: leagues; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE leagues (
@@ -206,10 +206,10 @@ CREATE TABLE leagues (
 );
 
 
-ALTER TABLE public.leagues OWNER TO cowboy;
+ALTER TABLE public.leagues OWNER TO postgres;
 
 --
--- Name: leagues_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: leagues_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE leagues_id_seq
@@ -220,17 +220,17 @@ CREATE SEQUENCE leagues_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.leagues_id_seq OWNER TO cowboy;
+ALTER TABLE public.leagues_id_seq OWNER TO postgres;
 
 --
--- Name: leagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: leagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE leagues_id_seq OWNED BY leagues.id;
 
 
 --
--- Name: matches; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: matches; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE matches (
@@ -243,10 +243,10 @@ CREATE TABLE matches (
 );
 
 
-ALTER TABLE public.matches OWNER TO cowboy;
+ALTER TABLE public.matches OWNER TO postgres;
 
 --
--- Name: matches_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: matches_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE matches_id_seq
@@ -257,17 +257,17 @@ CREATE SEQUENCE matches_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.matches_id_seq OWNER TO cowboy;
+ALTER TABLE public.matches_id_seq OWNER TO postgres;
 
 --
--- Name: matches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: matches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE matches_id_seq OWNED BY matches.id;
 
 
 --
--- Name: teams; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: teams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE teams (
@@ -279,10 +279,10 @@ CREATE TABLE teams (
 );
 
 
-ALTER TABLE public.teams OWNER TO cowboy;
+ALTER TABLE public.teams OWNER TO postgres;
 
 --
--- Name: teams_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: teams_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE teams_id_seq
@@ -293,17 +293,17 @@ CREATE SEQUENCE teams_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.teams_id_seq OWNER TO cowboy;
+ALTER TABLE public.teams_id_seq OWNER TO postgres;
 
 --
--- Name: teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE teams_id_seq OWNED BY teams.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE users (
@@ -315,7 +315,7 @@ CREATE TABLE users (
 );
 
 
-ALTER TABLE public.users OWNER TO cowboy;
+ALTER TABLE public.users OWNER TO postgres;
 
 --
 -- Name: usersItems; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -331,7 +331,7 @@ CREATE TABLE "usersItems" (
 ALTER TABLE public."usersItems" OWNER TO postgres;
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE users_id_seq
@@ -342,17 +342,17 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO cowboy;
+ALTER TABLE public.users_id_seq OWNER TO postgres;
 
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY bets ALTER COLUMN id SET DEFAULT nextval('"betsIndividual_id_seq"'::regclass);
@@ -373,42 +373,42 @@ ALTER TABLE ONLY bots ALTER COLUMN id SET DEFAULT nextval('bots_id_seq'::regclas
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY items ALTER COLUMN id SET DEFAULT nextval('items_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY leagues ALTER COLUMN id SET DEFAULT nextval('leagues_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY matches ALTER COLUMN id SET DEFAULT nextval('matches_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY teams ALTER COLUMN id SET DEFAULT nextval('teams_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: betsIndividual_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('"betsIndividual_id_seq"', 1, false);
@@ -619,7 +619,7 @@ CI	Ivory Coast
 
 
 --
--- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: cowboy
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY items (id, name, value, metal, defindex, "assetID", "classID") FROM stdin;
@@ -631,42 +631,42 @@ COPY items (id, name, value, metal, defindex, "assetID", "classID") FROM stdin;
 
 
 --
--- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('items_id_seq', 6, true);
 
 
 --
--- Name: leagues_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: leagues_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('leagues_id_seq', 24, true);
 
 
 --
--- Name: matches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: matches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('matches_id_seq', 1, true);
 
 
 --
--- Name: teams_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: teams_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('teams_id_seq', 8, true);
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('users_id_seq', 117, true);
 
 
 --
--- Name: betsIndividual_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: betsIndividual_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY bets
@@ -698,7 +698,7 @@ ALTER TABLE ONLY countries
 
 
 --
--- Name: items_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY items
@@ -706,7 +706,7 @@ ALTER TABLE ONLY items
 
 
 --
--- Name: leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY leagues
@@ -714,7 +714,7 @@ ALTER TABLE ONLY leagues
 
 
 --
--- Name: matches_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: matches_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY matches
@@ -722,7 +722,7 @@ ALTER TABLE ONLY matches
 
 
 --
--- Name: teams_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: teams_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY teams
@@ -738,7 +738,7 @@ ALTER TABLE ONLY "usersItems"
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY users
