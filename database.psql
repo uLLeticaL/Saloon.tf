@@ -1,0 +1,761 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET client_encoding = 'SQL_ASCII';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: bets; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE bets (
+    id integer NOT NULL,
+    "user" integer,
+    match integer,
+    team integer,
+    keys integer,
+    metal integer
+);
+
+
+ALTER TABLE public.bets OWNER TO cowboy;
+
+--
+-- Name: betsIndividual_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE "betsIndividual_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."betsIndividual_id_seq" OWNER TO cowboy;
+
+--
+-- Name: betsIndividual_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE "betsIndividual_id_seq" OWNED BY bets.id;
+
+
+--
+-- Name: betsTotal; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "betsTotal" (
+    match integer,
+    team integer,
+    buds integer,
+    bills integer,
+    keys integer,
+    metal integer,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public."betsTotal" OWNER TO postgres;
+
+--
+-- Name: betsSummary_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE "betsSummary_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."betsSummary_id_seq" OWNER TO postgres;
+
+--
+-- Name: betsSummary_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE "betsSummary_id_seq" OWNED BY "betsTotal".id;
+
+
+--
+-- Name: bots; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE bots (
+    name text,
+    "emailAddress" text,
+    "emailPassword" text,
+    "steamLogin" text,
+    "steamPassword" text,
+    "steamID" text,
+    "steamAPI" text,
+    id integer NOT NULL,
+    "tradeLink" text
+);
+
+
+ALTER TABLE public.bots OWNER TO postgres;
+
+--
+-- Name: bots_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE bots_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bots_id_seq OWNER TO postgres;
+
+--
+-- Name: bots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE bots_id_seq OWNED BY bots.id;
+
+
+--
+-- Name: countries; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE countries (
+    id character varying(2) NOT NULL,
+    name character varying(64) NOT NULL
+);
+
+
+ALTER TABLE public.countries OWNER TO postgres;
+
+--
+-- Name: items; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE items (
+    id integer NOT NULL,
+    name text,
+    value integer,
+    metal boolean,
+    defindex integer,
+    "assetID" integer,
+    "classID" integer
+);
+
+
+ALTER TABLE public.items OWNER TO cowboy;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.items_id_seq OWNER TO cowboy;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE items_id_seq OWNED BY items.id;
+
+
+--
+-- Name: leagues; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE leagues (
+    id integer NOT NULL,
+    region text,
+    name text,
+    type text,
+    colour text
+);
+
+
+ALTER TABLE public.leagues OWNER TO cowboy;
+
+--
+-- Name: leagues_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE leagues_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.leagues_id_seq OWNER TO cowboy;
+
+--
+-- Name: leagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE leagues_id_seq OWNED BY leagues.id;
+
+
+--
+-- Name: matches; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE matches (
+    id integer NOT NULL,
+    league integer,
+    team1 integer,
+    team2 integer,
+    stream text,
+    won integer DEFAULT 0
+);
+
+
+ALTER TABLE public.matches OWNER TO cowboy;
+
+--
+-- Name: matches_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE matches_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.matches_id_seq OWNER TO cowboy;
+
+--
+-- Name: matches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE matches_id_seq OWNED BY matches.id;
+
+
+--
+-- Name: teams; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE teams (
+    id integer NOT NULL,
+    name text,
+    country text,
+    league integer,
+    "leagueID" integer
+);
+
+
+ALTER TABLE public.teams OWNER TO cowboy;
+
+--
+-- Name: teams_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE teams_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.teams_id_seq OWNER TO cowboy;
+
+--
+-- Name: teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE teams_id_seq OWNED BY teams.id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+CREATE TABLE users (
+    id integer NOT NULL,
+    name text,
+    avatar text,
+    "steamID" bigint,
+    level integer
+);
+
+
+ALTER TABLE public.users OWNER TO cowboy;
+
+--
+-- Name: usersItems; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "usersItems" (
+    "user" integer NOT NULL,
+    keys integer,
+    metal integer
+);
+
+
+ALTER TABLE public."usersItems" OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: cowboy
+--
+
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO cowboy;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cowboy
+--
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY bets ALTER COLUMN id SET DEFAULT nextval('"betsIndividual_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "betsTotal" ALTER COLUMN id SET DEFAULT nextval('"betsSummary_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY bots ALTER COLUMN id SET DEFAULT nextval('bots_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY items ALTER COLUMN id SET DEFAULT nextval('items_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY leagues ALTER COLUMN id SET DEFAULT nextval('leagues_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY matches ALTER COLUMN id SET DEFAULT nextval('matches_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY teams ALTER COLUMN id SET DEFAULT nextval('teams_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: cowboy
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: betsIndividual_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('"betsIndividual_id_seq"', 1, false);
+
+
+--
+-- Name: betsSummary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"betsSummary_id_seq"', 2, true);
+
+--
+-- Name: bots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('bots_id_seq', 6, true);
+
+
+--
+-- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY countries (id, name) FROM stdin;
+AF	Afghanistan
+AL	Albania
+DZ	Algeria
+AS	American Samoa
+AD	Andorra
+AO	Angola
+AI	Anguilla
+AQ	Antarctica
+AG	Antigua and Barbuda
+AR	Argentina
+AM	Armenia
+AW	Aruba
+AU	Australia
+AT	Austria
+AZ	Azerbaijan
+BS	Bahamas
+BH	Bahrain
+BD	Bangladesh
+BB	Barbados
+BY	Belarus
+BE	Belgium
+BZ	Belize
+BJ	Benin
+BM	Bermuda
+BT	Bhutan
+BO	Bolivia
+BA	Bosnia and Herzegovina
+BW	Botswana
+BV	Bouvet Island
+BR	Brazil
+BQ	British Antarctic Territory
+IO	British Indian Ocean Territory
+VG	British Virgin Islands
+BN	Brunei
+BG	Bulgaria
+BF	Burkina Faso
+BI	Burundi
+KH	Cambodia
+CM	Cameroon
+CA	Canada
+CT	Canton and Enderbury Islands
+CV	Cape Verde
+KY	Cayman Islands
+CF	Central African Republic
+TD	Chad
+CL	Chile
+CN	China
+CX	Christmas Island
+CC	Cocos [Keeling] Islands
+CO	Colombia
+KM	Comoros
+CG	Congo - Brazzaville
+CD	Congo - Kinshasa
+CK	Cook Islands
+CR	Costa Rica
+HR	Croatia
+CU	Cuba
+CY	Cyprus
+CZ	Czech Republic
+DK	Denmark
+DJ	Djibouti
+DM	Dominica
+DO	Dominican Republic
+NQ	Dronning Maud Land
+DD	East Germany
+EC	Ecuador
+EG	Egypt
+SV	El Salvador
+GQ	Equatorial Guinea
+ER	Eritrea
+EE	Estonia
+ET	Ethiopia
+FK	Falkland Islands
+FO	Faroe Islands
+FJ	Fiji
+FI	Finland
+FR	France
+GF	French Guiana
+PF	French Polynesia
+TF	French Southern Territories
+FQ	French Southern and Antarctic Territories
+GA	Gabon
+GM	Gambia
+GE	Georgia
+DE	Germany
+GH	Ghana
+GI	Gibraltar
+GR	Greece
+GL	Greenland
+GD	Grenada
+GP	Guadeloupe
+GU	Guam
+GT	Guatemala
+GG	Guernsey
+GN	Guinea
+GW	Guinea-Bissau
+GY	Guyana
+HT	Haiti
+HM	Heard Island and McDonald Islands
+HN	Honduras
+HK	Hong Kong SAR China
+HU	Hungary
+IS	Iceland
+IN	India
+ID	Indonesia
+IR	Iran
+IQ	Iraq
+IE	Ireland
+IM	Isle of Man
+IL	Israel
+IT	Italy
+JM	Jamaica
+JP	Japan
+JE	Jersey
+JT	Johnston Island
+JO	Jordan
+KZ	Kazakhstan
+KE	Kenya
+KI	Kiribati
+KW	Kuwait
+KG	Kyrgyzstan
+LA	Laos
+LV	Latvia
+LB	Lebanon
+LS	Lesotho
+LR	Liberia
+LY	Libya
+LI	Liechtenstein
+LT	Lithuania
+LU	Luxembourg
+MO	Macau SAR China
+MK	Macedonia
+MG	Madagascar
+MW	Malawi
+MY	Malaysia
+MV	Maldives
+ML	Mali
+MT	Malta
+MH	Marshall Islands
+MQ	Martinique
+MR	Mauritania
+MU	Mauritius
+YT	Mayotte
+FX	Metropolitan France
+MX	Mexico
+FM	Micronesia
+MI	Midway Islands
+MD	Moldova
+MC	Monaco
+MN	Mongolia
+ME	Montenegro
+MS	Montserrat
+MA	Morocco
+MZ	Mozambique
+MM	Myanmar [Burma]
+NA	Namibia
+NR	Nauru
+NP	Nepal
+NL	Netherlands
+AN	Netherlands Antilles
+NT	Neutral Zone
+NC	New Caledonia
+NZ	New Zealand
+NI	Nicaragua
+NE	Niger
+NG	Nigeria
+NU	Niue
+NF	Norfolk Island
+KP	North Korea
+VD	North Vietnam
+MP	Northern Mariana Islands
+NO	Norway
+OM	Oman
+PC	Pacific Islands Trust Territory
+PK	Pakistan
+PW	Palau
+PS	Palestinian Territories
+PA	Panama
+PZ	Panama Canal Zone
+PG	Papua New Guinea
+PY	Paraguay
+EU	Europe
+CI	Ivory Coast
+\.
+
+
+--
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: cowboy
+--
+
+COPY items (id, name, value, metal, defindex, "assetID", "classID") FROM stdin;
+1	keys	67	f	5717	\N	101785959
+6	refs	9	t	5002	\N	2674
+5	recs	3	t	5001	\N	5564
+2	scraps	1	t	5000	\N	2675
+\.
+
+
+--
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('items_id_seq', 6, true);
+
+
+--
+-- Name: leagues_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('leagues_id_seq', 24, true);
+
+
+--
+-- Name: matches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('matches_id_seq', 1, true);
+
+
+--
+-- Name: teams_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('teams_id_seq', 8, true);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cowboy
+--
+
+SELECT pg_catalog.setval('users_id_seq', 117, true);
+
+
+--
+-- Name: betsIndividual_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY bets
+    ADD CONSTRAINT "betsIndividual_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: betsSummary_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "betsTotal"
+    ADD CONSTRAINT "betsSummary_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: bots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY bots
+    ADD CONSTRAINT bots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: country_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY countries
+    ADD CONSTRAINT country_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: items_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY items
+    ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY leagues
+    ADD CONSTRAINT leagues_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: matches_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY matches
+    ADD CONSTRAINT matches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: teams_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY teams
+    ADD CONSTRAINT teams_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: usersItems_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "usersItems"
+    ADD CONSTRAINT "usersItems_pkey" PRIMARY KEY ("user");
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: cowboy; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
