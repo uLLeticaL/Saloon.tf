@@ -299,7 +299,6 @@ class Bot(object):
       offers = {}
       for offer in offersList:
         offerID = int(offer[u"tradeofferid"])
-        print offer
         if offer[u"trade_offer_state"] == offerState:
           if offerID in self.offersCache:
             offers[offerID] = self.offersCache[offerID]
@@ -329,6 +328,9 @@ class Bot(object):
             offer.itemsToGive = itemsToGive
             offer.itemsToReceive = itemsToReceive
             offers[offerID] = offer
+        else:
+          self.Offer(offerID, self.Bot).decline()
+          self.Bot.Log("Couldn't accept #" + str(offerID) + " offer. State: " + offer[u"trade_offer_state"])
 
       if ID and ID not in offersCache:
         self.offersCache[ID] = offers[ID]

@@ -89,7 +89,7 @@ class OfferHandler(object):
           metal += (RItem.value * item[0])
         else:
           RUserItem = getattr(self.RUser.Items[0], RItem.name)
-          correctItems.append([RUserItem, item[0]])
+          correctItems.append([RItem.name, item[0]])
       else:
         return False
     correctItems.append(['metal', metal])
@@ -109,7 +109,7 @@ class OfferHandler(object):
           metal += (RItem.value * item[0])
         else:
           RUserItem = getattr(self.RUser.Items[0], RItem.name)
-          correctItems.append([RUserItem, item[0]])
+          correctItems.append([RItem.name, item[0]])
       else:
         return False
     correctItems.append(['metal', metal])
