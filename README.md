@@ -1,14 +1,14 @@
 Saloon.tf
 =========
 ### Dependencies
-1. Python 2.7
-  1. pyCrypto
-  2. mechanize
-  3. autobahn
-  4. zope.interface
-2. PostgreSQL
-3. Node.js
-4. Grunt
+* Python 2.7
+  * pyCrypto
+  * mechanize
+  * autobahn
+  * zope.interface
+* PostgreSQL
+* Node.js
+* Grunt
 
 ### Getting started
 1. First you'll have to import database which you can find in the main folder of this reposistory.
