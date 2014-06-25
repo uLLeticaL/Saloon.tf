@@ -34,8 +34,9 @@
     <h2><i class="fa fa-briefcase"></i> Inventory</h2>
     <div class="button-panel pull-right">
       <button class="btn btn-lg btn-primary" data-toggle="modal" data-target="#deposit-modal"><i class="fa fa-sign-in"></i> Deposit</button>
-      <button class="btn btn-lg btn-primary" data-toggle="modal" data-target="#withdraw-modal"><i class="fa fa-sign-out"></i> Withdraw</button>
-      <button class="btn btn-lg btn-primary"><i class="fa fa-gavel"></i> Bet</button>
+        %if c.hasItems:
+          <button class="btn btn-lg btn-primary" data-toggle="modal" data-target="#withdraw-modal"><i class="fa fa-sign-out"></i> Withdraw</button>
+        %endif
     </div>
   </div>
   <div class="items well">
