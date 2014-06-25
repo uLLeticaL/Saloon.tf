@@ -12,13 +12,13 @@ $ ->
             array = JSON.parse(data)
             if array["success"]
               window.setTimeout (->
-                window.open "http://saloon.tf/manage/leagues", "_self"
+                window.open "http://"  + window.location.host + "/manage/leagues", "_self"
                 return
               ), 0
             else
               $("#removeLeague-modal .modal-body").html "<p class=\"text-danger\">" + array["message"] + "</p>"
               window.setTimeout (->
-                window.open "http://saloon.tf/manage/leagues", "_self"
+                window.open "http://"  + window.location.host + "/manage/leagues", "_self"
                 return
               ), 3000
             return
@@ -47,13 +47,13 @@ $ ->
               array = JSON.parse(data)
               if array["success"]
                 window.setTimeout (->
-                  window.open "http://saloon.tf/manage/leagues", "_self"
+                  window.open "http://"  + window.location.host + "/manage/leagues", "_self"
                   return
                 ), 0
               else
                 $("#editLeague-modal .modal-body").html "<p class=\"text-danger\">" + array["message"] + "</p>"
                 window.setTimeout (->
-                  window.open "http://saloon.tf/manage/leagues", "_self"
+                  window.open "http://"  + window.location.host + "/manage/leagues", "_self"
                   return
                 ), 3000
               return

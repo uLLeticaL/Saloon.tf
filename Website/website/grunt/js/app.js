@@ -3,7 +3,7 @@
     if (page === "home") {
       $(".bet").on("click", function(e) {
         if (!$("button").is(e.target)) {
-          window.open("http://saloon.tf/bet/" + $(this).data("id") + "/", "_self");
+          window.open("http://" + window.location.host + "/bet/" + $(this).data("id") + "/", "_self");
         }
       });
     }
@@ -17,7 +17,7 @@
   openConnection = function(type) {
     var socket;
     $("#" + type + "-modal .modal-body").html("<p class=\"connection-status\"> <i class=\"fa fa-spinner fa-spin\"></i> Establishing connection with bot </p>");
-    socket = new WebSocket("ws://saloon.tf:9000");
+    socket = new WebSocket("ws://" + window.location.host + ":9000");
     socket.onopen = function() {
       var json;
       $(".connection-status").html("<i class=\"fa fa-check\"></i> Connected");
@@ -45,7 +45,7 @@
         }
         $("#" + type + "-modal .modal-body").append("<p class=\"button-paragraph\"> <button id=\"trade-button\" class=\"btn btn-md btn-primary btn-block\"> <i class=\"fa fa-exchange\"></i> Trade </button> </p>");
         $("#" + type + "-modal .modal-body #trade-button").on("click", function() {
-          window.open("http://saloon.tf/trade/" + botArray[1] + "/", "_blank");
+          window.open("http://" + window.location.host + "/trade/" + botArray[1] + "/", "_blank");
           $("#" + type + "-modal .modal-body .button-paragraph").remove();
           if (type === "deposit") {
             $("#deposit-modal .modal-body").append("<p class=\"trade-status\"> <i class=\"fa fa-spinner fa-spin\"></i> Waiting for trade to be processed </p>");
@@ -73,12 +73,12 @@
       } else if (array[0] === "accepted") {
         $(".trade-status").html("<i class=\"fa fa-check\"></i> Trade completed!");
         window.setTimeout((function() {
-          window.open("http://saloon.tf/inventory/", "_self");
+          window.open("http://" + window.location.host + "/inventory/", "_self");
         }), 3000);
       } else if (array[0] === "declined") {
         $(".trade-status").html("<i class=\"fa fa-times\"></i> There was an error in the trade.");
         window.setTimeout((function() {
-          window.open("http://saloon.tf/inventory/", "_self");
+          window.open("http://" + window.location.host + "/inventory/", "_self");
         }), 3000);
       }
     };
@@ -122,12 +122,12 @@
               array = JSON.parse(data);
               if (array["success"]) {
                 window.setTimeout((function() {
-                  window.open("http://saloon.tf/manage/leagues", "_self");
+                  window.open("http://" + window.location.host + "/manage/leagues", "_self");
                 }), 0);
               } else {
                 $("#removeLeague-modal .modal-body").html("<p class=\"text-danger\">" + array["message"] + "</p>");
                 window.setTimeout((function() {
-                  window.open("http://saloon.tf/manage/leagues", "_self");
+                  window.open("http://" + window.location.host + "/manage/leagues", "_self");
                 }), 3000);
               }
             });
@@ -158,12 +158,12 @@
                 array = JSON.parse(data);
                 if (array["success"]) {
                   window.setTimeout((function() {
-                    window.open("http://saloon.tf/manage/leagues", "_self");
+                    window.open("http://" + window.location.host + "/manage/leagues", "_self");
                   }), 0);
                 } else {
                   $("#editLeague-modal .modal-body").html("<p class=\"text-danger\">" + array["message"] + "</p>");
                   window.setTimeout((function() {
-                    window.open("http://saloon.tf/manage/leagues", "_self");
+                    window.open("http://" + window.location.host + "/manage/leagues", "_self");
                   }), 3000);
                 }
               }
