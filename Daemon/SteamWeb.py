@@ -44,6 +44,10 @@ class Bot(object):
     # Pass Bot to the O objects.
     return self.OTrade(self)
 
+  def Authenticate(self):
+    # Pass Bot to the O objects.
+    return self.OAuth(self)
+
   class OAuth(object):
     def __init__(self, bot):
       self.Bot = bot
