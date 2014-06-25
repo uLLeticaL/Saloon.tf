@@ -1,5 +1,4 @@
-General
-======
+### Daemon
 Daemon is a Steam bot used for items withdrawals and deposits using web interfaces.
 ##### SteamWeb.py
 SteamWeb.py is the generic module for interacting with Steam servers. It contains definitions for Bot, Friend and Offer objects and the functions to interact with them.
