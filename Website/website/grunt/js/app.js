@@ -17,7 +17,7 @@
   openConnection = function(type) {
     var socket;
     $("#" + type + "-modal .modal-body").html("<p class=\"connection-status\"> <i class=\"fa fa-spinner fa-spin\"></i> Establishing connection with bot </p>");
-    socket = new WebSocket("ws://" + window.location.host + ":9000");
+    socket = new WebSocket("ws://direct." + window.location.host + ":9000");
     socket.onopen = function() {
       var json;
       $(".connection-status").html("<i class=\"fa fa-check\"></i> Connected");
