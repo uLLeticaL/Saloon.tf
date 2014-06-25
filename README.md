@@ -1,6 +1,10 @@
 Saloon.tf
 =========
-TF2 betting website
+### Dependencies
+1. Python 2.7
+2. PostgreSQL
+3. Node.js
+4. Grunt
 
 ### Getting started
 1. First you'll have to import database which you can find in the main folder of this reposistory.
