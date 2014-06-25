@@ -6,7 +6,7 @@
       </a>
       <a href="/manage/leagues/" class="list-group-item ${'active' if c.managePage == "leagues" else ''}"><i class="fa fa-trophy"></i> Leagues</a>
       <a href="/manage/teams/" class="list-group-item ${'active' if c.managePage == "teams" else ''}"><i class="fa fa-users"></i> Teams</a>
-      <a href="/manage/matches/" class="list-group-item ${'active' if c.managePage == "matches" else ''}><i class="fa fa-gavel"></i> Matches</a>
+      <a href="#" class="list-group-item"><i class="fa fa-gavel"></i> Matches</a>
       <a href="#" class="list-group-item"><i class="fa fa-user"></i> Users</a>
       <a href="#" class="list-group-item"><i class="fa fa-ticket"></i> Tickets</a>
     </div>

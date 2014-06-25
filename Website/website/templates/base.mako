@@ -46,6 +46,6 @@
       </div><!-- /.container-fluid -->
     </nav>
     ${self.body()}
-    <script type="text/javascript" src="/javascript.js?v=289" /></script>
+    <script type="text/javascript" src="/javascript.js?v=288" /></script>
   </body>
 </html>

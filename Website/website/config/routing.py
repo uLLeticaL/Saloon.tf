@@ -31,7 +31,6 @@ def make_map(config):
     map.connect('/manage/teams/{leagueID}/add/', controller='manage', action='addTeam')
     map.connect('/manage/teams/{leagueID}/remove/{teamID}/', controller='manage', action='removeTeam')
     map.connect('/manage/teams/{leagueID}/edit/{teamID}/', controller='manage', action='editTeam')
-    map.connect('/manage/matches/', controller='manage', action='matchesLeagues')
     
     map.connect('/{controller}/', action='index')
     map.connect('/{controller}/{action}/')
