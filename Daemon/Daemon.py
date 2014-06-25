@@ -1,4 +1,5 @@
-import time, json
+import re, time, json
+import gmail
 import settings, database as db
 import colorama as color
 import threading
@@ -7,17 +8,46 @@ import SteamWeb
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
                                        WebSocketServerFactory
 
-class CallbackHandler():
-  def Log(self, name, message):
-    print color.Fore.BLUE + color.Style.BRIGHT + "[" + name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
-
 RBot = db.Session.query(db.Bots).filter(db.Bots.id == settings.bots[0]).first()
+
+class CallbackHandler(object):
+  def log(self, name, message):
+    print color.Fore.BLUE + color.Style.BRIGHT + "[" + name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
+  def steamGuard(self):
+    # Manual authentication
+    if RBot.emailPassword is None:
+      while True:
+        self.Bot.Log("GuardCode sent to " + RBot.emailAddress)
+        guardCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
+        return guardCode
+    else:
+      g = gmail.login(RBot.emailAddress, RBot.emailPassword)
+      # Check for emails until we get Steam Guard code
+      for i in range(0, settings.steam["guard"]["retries"]):
+        mails = g.inbox().mail(sender="noreply@steampowered.com", unread=True)
+        if mails:
+          mail = mails[-1]
+          mail.fetch()
+          guardCode = re.findall(r"log in again: ([A-Z0-9]{5})", mail.body)[0]
+          mail.read()
+          mail.delete()
+          g.logout()
+          return guardCode
+        else:
+          self.log("Don't have any new emails")
+          self.log("Retrying in " + str(settings.steam["guard"]["interval"]) + " seconds")
+          time.sleep(settings.steam["guard"]["interval"])
+      if i == range(0, settings.steam["guard"]["retries"]):
+        while True:
+          self.log("GuardCode sent to " + self.Bot.email["address"] + ". You'll have to manually enter the code.")
+          guardCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
+          return guardCode
+
 Bot = SteamWeb.Bot(
   RBot.id,
   RBot.name,
   {"login": RBot.steamLogin, "password": RBot.steamPassword, "id": RBot.steamID, "api": RBot.steamAPI, "trade": RBot.tradeLink},
-  CallbackHandler(),
-  {"address": RBot.emailAddress, "password": RBot.emailPassword}
+  CallbackHandler()
 )
 
 trade = Bot.Trade()
