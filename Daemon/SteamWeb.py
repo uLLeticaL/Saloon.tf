@@ -6,19 +6,24 @@ import gmail
 import base64
 import colorama as color
 import urllib, cookielib
-import items, settings, utilities, database as db
+import settings, utilities
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from mechanize import Browser, HTTPError, URLError
 
 class Bot(object):
-  def __init__(self, botID):
+  def __init__(self, botID, name, steam, Callback, email = False):
     self.id = botID
-    self.Meta = db.Session.query(db.Bots).filter(db.Bots.id == botID).first()
+    self.name = name
+    self.steam = steam
+    if email:
+      self.email = email
+
+    self.Callback = Callback
 
     self.sessionid = False
     self.cookiejar = cookielib.LWPCookieJar()
-    self.cookiefile = "cookies/" + self.Meta.steamLogin
+    self.cookiefile = "cookies/" + self.steam["login"]
     if os.path.isfile(self.cookiefile):
       self.cookiejar.load(self.cookiefile)
 
@@ -29,7 +34,7 @@ class Bot(object):
     self.OAuth(self)
 
   def Log(self, message):
-    print color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Meta.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
+    self.Callback.Log(self.name, message)
 
   def Community(self):
     # Pass Bot to the O objects.
@@ -49,11 +54,11 @@ class Bot(object):
         self.Bot.Log("SteamGuard code needed")
       else:
         self.Bot.Log("Encrypting password")
-        encrypted = self.encryptPassword(self.Bot.Meta.steamLogin, self.Bot.Meta.steamPassword.encode("ascii","ignore"))
+        encrypted = self.encryptPassword(self.Bot.steam["login"], self.Bot.steam["password"].encode("ascii","ignore"))
         self.Bot.Log("Logging in")
 
       parameters = {
-        'username': self.Bot.Meta.steamLogin,
+        'username': self.Bot.steam["login"],
         'password': encrypted["password"],
         'emailauth': "",
         'loginfriendlyname': "",
@@ -87,13 +92,13 @@ class Bot(object):
         self.signIn(guardNeeded = True, steamID = response[u"emailsteamid"], encrypted = encrypted)
       elif response[u"message"] == u"Error verifying humanity":
         # "Never give up on your goals, stay focused on your own"
-        captchaPath = "captchas/" + self.Bot.Meta.name + "-" + response[u"captcha_gid"] + ".png"
+        captchaPath = "captchas/" + self.Bot.name + "-" + response[u"captcha_gid"] + ".png"
         self.Bot.Log("Captcha needed. Saving it to the " + captchaPath)
         captcha = self.Bot.browser.open("https://steamcommunity.com/public/captcha.php?gid=" + response[u"captcha_gid"]).read()
         captchaFile = open(captchaPath, 'wb')
         captchaFile.write(captcha)
         captchaFile.close()
-        captchaCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.Meta.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "Captcha: ")
+        captchaCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "Captcha: ")
         self.signIn(captchaNeeded = True, captchaGid = response[u"captcha_gid"], captchaCode = captchaCode)
       else:
         self.Bot.Log("Something went wrong. Message: " + response[u"message"])
@@ -118,13 +123,13 @@ class Bot(object):
 
     def getGuardCode(self):
       # Manual authentication
-      if self.Bot.Meta.emailPassword is None:
+      if self.Bot.email is None:
         while True:
-          self.Bot.Log("GuardCode sent to " + self.Bot.Meta.emailAddress)
-          entered = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.Meta.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
+          self.Bot.Log("Enter the SteamGuard code:")
+          entered = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
           return entered
       else:
-        g = gmail.login(self.Bot.Meta.emailAddress, self.Bot.Meta.emailPassword)
+        g = gmail.login(self.Bot.email["address"], self.Bot.email["password"])
         # Check for emails until we get Steam Guard code
         for i in range(0, settings.steam["guard"]["retries"]):
           mails = g.inbox().mail(sender="noreply@steampowered.com", unread=True)
@@ -142,8 +147,8 @@ class Bot(object):
             time.sleep(settings.steam["guard"]["interval"])
         if i == range(0, settings.steam["guard"]["retries"]):
           while True:
-            self.Bot.Log("GuardCode sent to " + self.Bot.Meta.emailAddress)
-            entered = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.Meta.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
+            self.Bot.Log("GuardCode sent to " + self.Bot.email["address"])
+            entered = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
             return entered
           
     def getSessionId(self):
@@ -159,7 +164,7 @@ class Bot(object):
       if steamID:
         return self.Friend(steamID, self.Bot)
       else:
-        parameters = {'relationship': 'friend', 'steamid': self.Bot.Meta.steamID}
+        parameters = {'relationship': 'friend', 'steamid': self.Bot.steam["id"]}
         response = self.Bot.API("ISteamUser/GetFriendList/v0001", parameters)
         friends = []
         if prefetch:
@@ -330,7 +335,7 @@ class Bot(object):
             offers[offerID] = offer
         else:
           self.Offer(offerID, self.Bot).decline()
-          self.Bot.Log("Couldn't accept #" + str(offerID) + " offer. State: " + offer[u"trade_offer_state"])
+          self.Bot.Log("Couldn't accept #" + str(offerID) + " offer. State: " + str(offer[u"trade_offer_state"]))
 
       if ID and ID not in offersCache:
         self.offersCache[ID] = offers[ID]
@@ -370,7 +375,7 @@ class Bot(object):
         }
         data = urllib.urlencode(parameters)
         try:
-          response = self.Bot.browser.open("http://api.steampowered.com/IEconService/DeclineTradeOffer/v1/?key=" + self.Bot.Meta.steamAPI, data)
+          response = self.Bot.browser.open("http://api.steampowered.com/IEconService/DeclineTradeOffer/v1/?key=" + self.Bot.steam["api"], data)
         except (HTTPError, URLError) as error:
           return False
           self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
@@ -379,7 +384,7 @@ class Bot(object):
           self.Bot.Log("Declined #" + str(self.offerID) + " offer.")
 
   def API(self, message, parameters):
-    parameters['key'] = self.Meta.steamAPI
+    parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
     response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data)
     response = json.loads(response.read())

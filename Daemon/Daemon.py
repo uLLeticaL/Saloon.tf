@@ -1,13 +1,26 @@
 import time, json
 import settings, database as db
+import colorama as color
 import threading
 import SteamWeb
 
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
                                        WebSocketServerFactory
 
-bot = SteamWeb.Bot(settings.bots[0])
-trade = bot.Trade()
+class CallbackHandler():
+  def Log(self, name, message):
+    print color.Fore.BLUE + color.Style.BRIGHT + "[" + name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
+
+RBot = db.Session.query(db.Bots).filter(db.Bots.id == settings.bots[0]).first()
+Bot = SteamWeb.Bot(
+  RBot.id,
+  RBot.name,
+  {"login": RBot.steamLogin, "password": RBot.steamPassword, "id": RBot.steamID, "api": RBot.steamAPI, "trade": RBot.tradeLink},
+  CallbackHandler(),
+  {"address": RBot.emailAddress, "password": RBot.emailPassword}
+)
+
+trade = Bot.Trade()
 items = {}
 RItems = db.Session.query(db.Items).all()
 for RItem in RItems:
@@ -53,7 +66,7 @@ class TradesHandler(threading.Thread):
 
             if success:
               print offer.accept()
-              bot.Log("Accepted trade #" + str(offer.offerID) + " from " + RUser.name + ".")
+              Bot.Log("Accepted trade #" + str(offer.offerID) + " from " + RUser.name + ".")
               if RUser.steamID in listeners:
                 jsonString = json.dumps(["accepted"])
                 listeners[RUser.steamID].sendMessage(jsonString)
@@ -61,14 +74,14 @@ class TradesHandler(threading.Thread):
                 QueueHandler().timeout(steamID)
             else:
               offer.decline()
-              bot.Log("Trade #" + str(offer.offerID) + " had invalid items. Declining.")
+              Bot.Log("Trade #" + str(offer.offerID) + " had invalid items. Declining.")
               if RUser.steamID in listeners:
                 jsonString = json.dumps(["declined"])
                 listeners[RUser.steamID].sendMessage(jsonString)
           del partners[str(RUser.steamID)]
 
         for steamID in partners:
-          bot.Log("User with SteamID: " + str(steamID) + " isn't registered yet. Declining his offers.")
+          Bot.Log("User with SteamID: " + str(steamID) + " isn't registered yet. Declining his offers.")
           for offer in partners[steamID]:
             offer.decline()
       db.Session.commit()
@@ -123,7 +136,7 @@ class QueueHandler:
   def add(self, steamID):
     queue.append(steamID)
     if len(queue) == 1:
-      jsonString = json.dumps(["hello",bot.Meta.id])
+      jsonString = json.dumps(["hello",RBot.id])
       r = threading.Timer(60.0, self.timeout, [steamID])
       r.daemon = True
       r.start()
@@ -149,7 +162,7 @@ class QueueHandler:
       if position == 0:
         if current['withdraw'] != steamID:
           current['withdraw'] = steamID
-          jsonString = json.dumps(["hello",bot.Meta.id])
+          jsonString = json.dumps(["hello",RBot.id])
           r = threading.Timer(60.0, self.timeout, [steamID])
           r.start()
       else:
@@ -175,7 +188,7 @@ class BotServerProtocol(WebSocketServerProtocol):
         if message[1] == u"withdraw":
           QueueHandler().add(steamID)
         else:
-          jsonString = json.dumps(["hello",bot.Meta.id])
+          jsonString = json.dumps(["hello",RBot.id])
           self.sendMessage(jsonString)
 
   def onClose(self, wasClean, code, reason):
