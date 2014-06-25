@@ -327,3 +327,33 @@ class ManageController(BaseController):
 
     array = {"success": success, "message": message}
     return json.dumps(array)
+
+  def matchesLeagues(self):
+    # Return a rendered template
+    #return render('manage/teams.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        c.user = user[1]
+        c.current = "manage"
+        c.managePage = "matches"
+
+        RLeagues = db.Session.query(db.Leagues).order_by(db.Leagues.id).limit(10).all()
+        c.leagues = []
+        for RLeague in RLeagues:
+          league = {}
+          league["id"] = RLeague.id
+          league["name"] = RLeague.name
+          league["type"] = RLeague.type
+          league["region"] = RLeague.region
+          league["colour"] = RLeague.colour
+          league["json"] = json.dumps(league)
+          c.leagues.append(league)
+
+        return render('/manage/matches/index.mako')
+      else:
+        return redirect('http://saloon.tf/home/')
+    else:
+      return redirect('http://saloon.tf/home/')
