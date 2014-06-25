@@ -10,7 +10,7 @@ from autobahn.twisted.websocket import WebSocketServerProtocol, \
 
 RBot = db.Session.query(db.Bots).filter(db.Bots.id == settings.bots[0]).first()
 
-class CallbackHandler(object):
+class SteamWebCallback(object):
   def log(self, name, message):
     print color.Fore.BLUE + color.Style.BRIGHT + "[" + name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
   def steamGuard(self):
@@ -57,7 +57,7 @@ Bot = SteamWeb.Bot(
   RBot.id,
   RBot.name,
   {"login": RBot.steamLogin, "password": RBot.steamPassword, "id": RBot.steamID, "api": RBot.steamAPI, "trade": RBot.tradeLink},
-  CallbackHandler()
+  SteamWebCallback()
 )
 
 trade = Bot.Trade()
