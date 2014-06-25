@@ -2,6 +2,10 @@ Saloon.tf
 =========
 ### Dependencies
 1. Python 2.7
+  1. pyCrypto
+  2. mechanize
+  3. autobahn
+  4. zope.interface
 2. PostgreSQL
 3. Node.js
 4. Grunt
