@@ -92,14 +92,7 @@ class Bot(object):
         # Try to log in again using SteamGuard code
         self.signIn(guardNeeded = True, steamID = response[u"emailsteamid"], encrypted = encrypted)
       elif response[u"message"] == u"Error verifying humanity":
-        # "Never give up on your goals, stay focused on your own"
-        captchaPath = "captchas/" + self.Bot.name + "-" + response[u"captcha_gid"] + ".png"
-        self.Bot.log("Captcha needed. Saving it to the " + captchaPath)
-        captcha = self.Bot.browser.open("https://steamcommunity.com/public/captcha.php?gid=" + response[u"captcha_gid"]).read()
-        captchaFile = open(captchaPath, 'wb')
-        captchaFile.write(captcha)
-        captchaFile.close()
-        captchaCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "Captcha: ")
+        captchaCode = self.Bot.Callback.captchaCode(response[u"captcha_gid"])
         self.signIn(captchaNeeded = True, captchaGid = response[u"captcha_gid"], captchaCode = captchaCode)
       else:
         self.Bot.log("Something went wrong. Message: " + response[u"message"])

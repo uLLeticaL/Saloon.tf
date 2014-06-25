@@ -42,6 +42,16 @@ class CallbackHandler(object):
           self.log("GuardCode sent to " + self.Bot.email["address"] + ". You'll have to manually enter the code.")
           guardCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
           return guardCode
+  def captchaCode(self, gid):
+    # "Never give up on your goals, stay focused on your own"
+    self.log("Captcha needed. Saving it to the " + captchaPath)
+    captchaPath = "captchas/" + RBot.name + "-" + response[u"captcha_gid"] + ".png"
+    captcha = self.Bot.browser.open("https://steamcommunity.com/public/captcha.php?gid=" + gid).read()
+    captchaFile = open(captchaPath, 'wb')
+    captchaFile.write(captcha)
+    captchaFile.close()
+    captchaCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "Captcha: ")
+    return captchaCode
 
 Bot = SteamWeb.Bot(
   RBot.id,
