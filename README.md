@@ -6,7 +6,7 @@ Saloon.tf
   * mechanize
   * autobahn
   * zope.interface
-* PostgreSQL
+  * WebOb 1.3.1 (```pip install WebOb==1.3.1```)
 * Node.js
 * Grunt
 
