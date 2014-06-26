@@ -327,80 +327,7 @@ class ManageController(BaseController):
 
     array = {"success": success, "message": message}
     return json.dumps(array)
-
-  def addMatch(self, leagueID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
-    user = User()
-    if user:
-      RUser = user[0]
-      if RUser.level <= 3:
-        RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
-        db.Session.add(RMatch)
-        db.Session.commit()
-        return redirect("/manage/matches/")
-      else:
-        return redirect("/")
-    else:
-      return redirect("/")
-	  
-  def editMatch(self, leagueID, matchID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
-    user = User()
-    if user:
-      RUser = user[0]
-      if RUser.level <= 3:
-        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
-        if RMatch:
-          RMatch.league = request.params["leagueID"]
-          RMatch.team1 = request.params["team1"]
-          RMatch.team2 = request.params["team2"]
-          RMatch.stream = request.params["stream"]
-          db.Session.commit()
-          success = True
-          message = "Changed selected match."
-        else:
-          success = False
-          message = "<strong>Oh snap!</strong> Couldn't edit this match."
-      else:
-        success = False
-        message = "You don't have sufficent priviledges to access this page."
-    else:
-      success = False
-      message = "You don't have sufficent priviledges to access this page."
-    array = {"success": success, "message": message}
-	return json.dumps(array)
-	
-  def removeMatch(self, leagueID, matchID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
-    user = User()
-    if user:
-      RUser = user[0]
-      if RUser.level <= 3:
-        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
-        if RMatch:
-          db.Session.delete(RMatch)
-          db.Session.commit()
-          success = True
-          message = "Removed selected match."
-        else:
-          success = False
-          message = "<strong>Oh snap!</strong> Couldn't remove this match."
-      else:
-        success = False
-        message = "You don't have sufficent priviledges to access this page."
-    else:
-      success = False
-      message = "You don't have sufficent priviledges to access this page."
-
-    array = {"success": success, "message": message}
-    return json.dumps(array)
-	
+  
   def matchesLeagues(self):
     # Return a rendered template
     #return render('manage/matches.mako')
@@ -488,3 +415,76 @@ class ManageController(BaseController):
         return redirect('http://saloon.tf/home/')
     else:
       return redirect('http://saloon.tf/home/')
+
+  def addMatch(self, leagueID):
+    # Return a rendered template
+    #return render('/manage.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
+        db.Session.add(RMatch)
+        db.Session.commit()
+        return redirect("/manage/matches/")
+      else:
+        return redirect("/")
+    else:
+      return redirect("/")
+
+  def editMatch(self, leagueID, matchID):
+    # Return a rendered template
+    #return render('/manage.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
+        if RMatch:
+          RMatch.league = request.params["leagueID"]
+          RMatch.team1 = request.params["team1"]
+          RMatch.team2 = request.params["team2"]
+          RMatch.stream = request.params["stream"]
+          db.Session.commit()
+          success = True
+          message = "Changed selected match."
+        else:
+          success = False
+          message = "<strong>Oh snap!</strong> Couldn't edit this match."
+      else:
+        success = False
+        message = "You don't have sufficent priviledges to access this page."
+    else:
+      success = False
+      message = "You don't have sufficent priviledges to access this page."
+    array = {"success": success, "message": message}
+    return json.dumps(array)
+
+  def removeMatch(self, leagueID, matchID):
+    # Return a rendered template
+    #return render('/manage.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
+        if RMatch:
+          db.Session.delete(RMatch)
+          db.Session.commit()
+          success = True
+          message = "Removed selected match."
+        else:
+          success = False
+          message = "<strong>Oh snap!</strong> Couldn't remove this match."
+      else:
+        success = False
+        message = "You don't have sufficent priviledges to access this page."
+    else:
+      success = False
+      message = "You don't have sufficent priviledges to access this page."
+
+    array = {"success": success, "message": message}
+    return json.dumps(array)
