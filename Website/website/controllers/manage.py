@@ -357,3 +357,61 @@ class ManageController(BaseController):
         return redirect('http://saloon.tf/home/')
     else:
       return redirect('http://saloon.tf/home/')
+
+  def matchesList(self, leagueID):
+    # Return a rendered template
+    #return render('manage/teams.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        c.user = user[1]
+        c.current = "manage"
+        c.managePage = "matches"
+
+        RLeague = db.Session.query(db.Leagues).filter(db.Leagues.id == leagueID).first()
+        RMatches = db.Session.query(db.Matches).filter(db.Matches.league == leagueID).order_by(db.Matches.id).limit(10).all()
+        RTeams = db.Session.query(db.Teams).filter(db.Teams.league == leagueID).order_by(db.Teams.id).all()
+
+        c.league = {}
+        c.league["id"] = RLeague.id
+        c.league["name"] = RLeague.name
+        c.league["type"] = RLeague.type
+        c.league["region"] = RLeague.region
+        c.league["colour"] = RLeague.colour
+
+        c.matches = []
+        for RMatch in RMatches:
+          match = {}
+          match["id"] = RMatch.id
+          match["stream"] = RMatch.stream
+          match["won"] = RMatch.won
+
+          match["team1"] = {}
+          match["team1"]["id"] = RMatch.Team1.id
+          match["team1"]["name"] = RMatch.Team1.name
+          match["team1"]["country"] = RMatch.Team1.Country.name
+          match["team1"]["countryID"] = RMatch.Team1.Country.id
+
+          match["team2"] = {}
+          match["team2"]["id"] = RMatch.Team2.id
+          match["team2"]["name"] = RMatch.Team2.name
+          match["team2"]["country"] = RMatch.Team2.Country.name
+          match["team2"]["countryID"] = RMatch.Team2.Country.id
+
+          match["json"] = json.dumps(match)
+          c.matches.append(match)
+        print c.matches
+        c.teams = []
+        for RTeam in RTeams:
+          team = {}
+          team["id"] = RTeam.id
+          team["name"] = RTeam.name
+          c.teams.append(team)
+
+        return render('/manage/matches/list.mako')
+      else:
+        return redirect('http://saloon.tf/home/')
+    else:
+      return redirect('http://saloon.tf/home/')
