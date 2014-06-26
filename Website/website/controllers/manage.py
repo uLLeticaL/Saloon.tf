@@ -328,9 +328,26 @@ class ManageController(BaseController):
     array = {"success": success, "message": message}
     return json.dumps(array)
 
+  def addMatch(self, leagueID):
+    # Return a rendered template
+    #return render('/manage.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.level <= 3:
+        RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
+        db.Session.add(RMatch)
+        db.Session.commit()
+        return redirect("/manage/teams/" + leagueID)
+      else:
+        return redirect("/")
+    else:
+      return redirect("/")
+	
   def matchesLeagues(self):
     # Return a rendered template
-    #return render('manage/teams.mako')
+    #return render('manage/matches.mako')
     # or, return a string
     user = User()
     if user:
