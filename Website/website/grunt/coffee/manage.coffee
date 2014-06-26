@@ -37,7 +37,6 @@ $ ->
         $('#editLeague-form [name="accentColour"]').val array["colour"]
         $("#editLeague-modal").modal "show"
         $('#editLeague-form').submit ->
-          console.log $(this).serialize()
           $.ajax(
             type: "POST"
             url: "/manage/leagues/edit/" + array["id"] + "/"
@@ -62,7 +61,6 @@ $ ->
         return
     if $(".removeTeam-button").length > 0
       $(".removeTeam-button").on "click", ->
-        console.log 1
         id = $(this).data("id")
         $("#removeTeam-confirm").off "click"
         $("#removeTeam-confirm").on "click", ->
@@ -100,7 +98,6 @@ $ ->
             data: $(this).serialize()
             context: document.body
             success: (data) ->
-              console.log location.href + "edit/" + array["id"] + "/"
               array = JSON.parse(data)
               if array["success"]
                 window.setTimeout (->
@@ -117,4 +114,60 @@ $ ->
           )
           false
         return
-  return
+    if $(".removeMatch-button").length > 0
+      $(".removeMatch-button").on "click", ->
+        id = $(this).data("id")
+        $("#removeMatch-confirm").off "click"
+        $("#removeMatch-confirm").on "click", ->
+          $.ajax(
+            url: location.href + "remove/" + id + "/"
+            context: document.body
+          ).done (data) ->
+            array = JSON.parse(data)
+            if array["success"]
+              window.setTimeout (->
+                window.open location.href, "_self"
+                return
+              ), 0
+            else
+              $("#removeMatch-modal .modal-body").html "<p class=\"text-danger\">" + array["message"] + "</p>"
+              window.setTimeout (->
+                window.open location.href, "_self"
+                return
+              ), 3000
+            return
+          return
+        $("#removeMatch-modal").modal "show"
+        return
+
+    if $(".editMatch-button").length > 0
+      $(".editMatch-button").on "click", ->
+        array = $(this).data("json")
+        $('#editMatch-form [name="team1"]').val array["team1"]["id"]
+        $('#editMatch-form [name="team2"]').val array["team2"]["id"]
+        $('#editMatch-form [name="stream"]').val array["stream"]
+        $("#editMatch-modal").modal "show"
+        $('#editMatch-form').submit ->
+          $.ajax(
+            type: "POST"
+            url: location.href + "edit/" + array["id"] + "/"
+            data: $(this).serialize()
+            context: document.body
+            success: (data) ->
+              array = JSON.parse(data)
+              if array["success"]
+                window.setTimeout (->
+                  window.open location.href, "_self"
+                  return
+                ), 0
+              else
+                $("#editMatch-modal .modal-body").html "<p class=\"text-danger\">" + array["message"] + "</p>"
+                window.setTimeout (->
+                  window.open location.href, "_self"
+                  return
+                ), 3000
+              return
+          )
+          false
+        return
+return

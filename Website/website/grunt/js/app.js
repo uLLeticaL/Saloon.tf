@@ -148,7 +148,6 @@
           $('#editLeague-form [name="accentColour"]').val(array["colour"]);
           $("#editLeague-modal").modal("show");
           $('#editLeague-form').submit(function() {
-            console.log($(this).serialize());
             $.ajax({
               type: "POST",
               url: "/manage/leagues/edit/" + array["id"] + "/",
@@ -175,7 +174,6 @@
       if ($(".removeTeam-button").length > 0) {
         $(".removeTeam-button").on("click", function() {
           var id;
-          console.log(1);
           id = $(this).data("id");
           $("#removeTeam-confirm").off("click");
           $("#removeTeam-confirm").on("click", function() {
@@ -215,7 +213,6 @@
               data: $(this).serialize(),
               context: document.body,
               success: function(data) {
-                console.log(location.href + "edit/" + array["id"] + "/");
                 array = JSON.parse(data);
                 if (array["success"]) {
                   window.setTimeout((function() {
@@ -233,7 +230,68 @@
           });
         });
       }
+      if ($(".removeMatch-button").length > 0) {
+        $(".removeMatch-button").on("click", function() {
+          var id;
+          id = $(this).data("id");
+          $("#removeMatch-confirm").off("click");
+          $("#removeMatch-confirm").on("click", function() {
+            $.ajax({
+              url: location.href + "remove/" + id + "/",
+              context: document.body
+            }).done(function(data) {
+              var array;
+              array = JSON.parse(data);
+              if (array["success"]) {
+                window.setTimeout((function() {
+                  window.open(location.href, "_self");
+                }), 0);
+              } else {
+                $("#removeMatch-modal .modal-body").html("<p class=\"text-danger\">" + array["message"] + "</p>");
+                window.setTimeout((function() {
+                  window.open(location.href, "_self");
+                }), 3000);
+              }
+            });
+          });
+          $("#removeMatch-modal").modal("show");
+        });
+      }
+      if ($(".editMatch-button").length > 0) {
+        return $(".editMatch-button").on("click", function() {
+          var array;
+          array = $(this).data("json");
+          $('#editMatch-form [name="team1"]').val(array["team1"]["id"]);
+          $('#editMatch-form [name="team2"]').val(array["team2"]["id"]);
+          $('#editMatch-form [name="stream"]').val(array["stream"]);
+          $("#editMatch-modal").modal("show");
+          $('#editMatch-form').submit(function() {
+            $.ajax({
+              type: "POST",
+              url: location.href + "edit/" + array["id"] + "/",
+              data: $(this).serialize(),
+              context: document.body,
+              success: function(data) {
+                array = JSON.parse(data);
+                if (array["success"]) {
+                  window.setTimeout((function() {
+                    window.open(location.href, "_self");
+                  }), 0);
+                } else {
+                  $("#editMatch-modal .modal-body").html("<p class=\"text-danger\">" + array["message"] + "</p>");
+                  window.setTimeout((function() {
+                    window.open(location.href, "_self");
+                  }), 3000);
+                }
+              }
+            });
+            return false;
+          });
+        });
+      }
     }
   });
+
+  return;
 
 }).call(this);

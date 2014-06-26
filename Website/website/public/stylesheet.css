@@ -1057,10 +1057,10 @@ mark,
   background-color: #fcf8e3;
   padding: .2em; }
 
-.text-left, body .manage .well.match .team-0 {
+.text-left {
   text-align: left; }
 
-.text-right, body .manage .well.match .team-1, body .manage .well.match .buttons {
+.text-right, body .manage .well.match .buttons {
   text-align: right; }
 
 .text-center {
@@ -7057,10 +7057,10 @@ body .header {
 label {
   font-weight: normal; }
 
-.text-left, body .manage .well.match .team-0 {
+.text-left {
   text-align: left; }
 
-.text-right, body .manage .well.match .team-1, body .manage .well.match .buttons {
+.text-right, body .manage .well.match .buttons {
   text-align: right; }
 
 .table-layout {
@@ -7068,11 +7068,11 @@ label {
   width: 100%;
   min-width: 100%; }
 
-.table-cell, body .manage .well.match .team-0-avatar, body .manage .well.match .team-1-avatar, body .manage .well.match .team-0, body .manage .well.match .team-1 {
+.table-cell {
   display: table-cell;
   vertical-align: top; }
 
-.table-cell-sm, body .manage .well.match .team-0-avatar, body .manage .well.match .team-1-avatar {
+.table-cell-sm {
   width: 1px; }
 
 .block {
@@ -7191,13 +7191,15 @@ body .manage .well {
     margin-right: 20px;
     border-radius: 4px; }
   body .manage .well.match .team-0-avatar {
-    padding-right: 10px; }
+    margin-right: 10px;
+    float: left; }
   body .manage .well.match .team-1-avatar {
-    padding-left: 10px; }
+    margin-right: 10px;
+    float: left; }
   body .manage .well.match .row {
     margin-left: -10px;
     margin-right: -10px; }
-    body .manage .well.match .row .col-md-3, body .manage .well.match .row .col-md-9 {
+    body .manage .well.match .row .col-md-3, body .manage .well.match .row .col-md-6, body .manage .well.match .row .col-md-9 {
       padding-left: 10px;
       padding-right: 10px; }
 body .manage .league-block {
