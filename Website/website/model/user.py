@@ -1,6 +1,6 @@
-from pylons import request, response, session, tmpl_context as c, url
+from pylons import request, response, session, tmpl_context as c, url, config
 import json, requests
-import settings, database as db
+import database as db
 
 def User():
   user = {}
@@ -13,7 +13,7 @@ def User():
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + RUser.avatar + "_full.jpg"
       user["level"] = RUser.level
     else:
-      url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (settings.steam["api"], user["steamid"])
+      url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], user["steamid"])
       print url
       data = requests.get(url).text
       player = json.loads(data)[u"response"][u"players"][0]
