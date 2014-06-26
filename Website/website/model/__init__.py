@@ -3,4 +3,4 @@ from website.model.meta import Session, Base
 
 
 def init_model(engine):
-    """Overwrite Pylon's SQLAlchemy session with Daemon's one"""
+    """Use Daemon's model instead of initializing a new one"""
