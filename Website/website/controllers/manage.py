@@ -443,7 +443,7 @@ class ManageController(BaseController):
       if RUser.level <= 3:
         RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
         if RMatch:
-          RMatch.league = request.params["leagueID"]
+          RMatch.league = leagueID
           RMatch.team1 = request.params["team1"]
           RMatch.team2 = request.params["team2"]
           RMatch.stream = request.params["stream"]
