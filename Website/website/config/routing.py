@@ -34,7 +34,9 @@ def make_map(config):
     map.connect('/manage/matches/', controller='manage', action='matchesLeagues')
     map.connect('/manage/matches/{leagueID}/', controller='manage', action='matchesList')
     map.connect('/manage/matches/{leagueID}/add/', controller='manage', action='addMatch')
-
+	map.connect('/manage/matches/{leagueID}/remove/{matchID}/', controller='manage', action='removeMatch')
+	map.connect('/manage/matches/{leagueID}/edit/{matchID}/', controller='manage', action='editMatch')
+	
     map.connect('/{controller}/', action='index')
     map.connect('/{controller}/{action}/')
     map.connect('/{controller}/{action}/{id}')
