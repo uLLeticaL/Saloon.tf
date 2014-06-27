@@ -310,8 +310,7 @@ CREATE TABLE users (
     id integer NOT NULL,
     name text,
     avatar text,
-    "steamID" bigint,
-    level integer
+    "steamID" bigint
 );
 
 
