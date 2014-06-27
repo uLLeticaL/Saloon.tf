@@ -12,6 +12,7 @@ def User():
       user["name"] = RUser.name
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + RUser.avatar + "_full.jpg"
       user["level"] = RUser.level
+      user["permissions"] = RUser.Permissions
     else:
       url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], user["steamid"])
       print url
@@ -19,13 +20,14 @@ def User():
       player = json.loads(data)[u"response"][u"players"][0]
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + player[u"avatarfull"][67:-9] + "_full.jpg"
       user["name"] = player[u"personaname"]
-      user["level"] = 5
-      RUser = db.Users(name = user["name"], avatar = player[u"avatarfull"][67:-9], steamID = user["steamid"], level = user["level"])
+      RUser = db.Users(name = user["name"], avatar = player[u"avatarfull"][67:-9], steamID = user["steamid"])
       db.Session.add(RUser)
       db.Session.commit()
       user["id"] = RUser.id
       RUserItems = db.UsersItems(user = user["id"], keys = 0, metal = 0)
       db.Session.add(RUserItems)
+      RUserPermissions = db.UsersItems(user = user["id"])
+      db.Session.add(RUserPermissions)
       db.Session.commit()
     return [RUser, user]
   else:
