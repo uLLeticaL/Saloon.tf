@@ -316,6 +316,28 @@ CREATE TABLE users (
 
 ALTER TABLE public.users OWNER TO postgres;
 
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "usersPermissions"
+(
+  "user" integer NOT NULL,
+  manage boolean DEFAULT false,
+  leagues boolean DEFAULT false,
+  teams boolean DEFAULT false,
+  users boolean DEFAULT false,
+  bets boolean DEFAULT false,
+  bots boolean DEFAULT false,
+  CONSTRAINT "usersPermissions_pkey" PRIMARY KEY ("user" )
+)
+WITH (
+  OIDS=FALSE
+);
+
+ALTER TABLE public."usersPermissions" OWNER TO postgres;
+
 --
 -- Name: usersItems; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
