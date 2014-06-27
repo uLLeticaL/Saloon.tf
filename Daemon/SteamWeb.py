@@ -176,41 +176,38 @@ class Bot(object):
           'steamid': self.steamID,
           'accept_invite': 0
         }
-        try:
-          response = self.Bot.Ajax('AddFriendAjax', parameters)
-        except (HTTPError, URLError) as error:
-          return False
-          self.Bot.log("Couldn't add " + self.steamID + " to the friends list. " + str(error.code) + " ERROR.")
-        else:
+        response = self.Bot.Ajax('AddFriendAjax', parameters)
+        if response:
           return True
           self.Bot.log("Sent friend request to " + self.steamID)
+        else:
+          return False
+          self.Bot.log("Couldn't add " + self.steamID + " to the friends list.")
 
       def accept(self):
         parameters = {
           'steamid': self.steamID,
           'accept_invite': 1
         }
-        try:
-          response = self.Bot.Ajax('AddFriendAjax', parameters)
-        except (HTTPError, URLError) as error:
-          return False
-          self.Bot.log("Couldn't add " + self.steamID + " to the friends list. " + str(error.code) + " ERROR.")
-        else:
-          return True
+        response = self.Bot.Ajax('AddFriendAjax', parameters)
+        if response:
           self.Bot.log("Accepted friend request from " + self.steamID)
+          return True
+        else:
+          self.Bot.log("Couldn't add " + self.steamID + " to the friends list.")
+          return False
 
       def remove(self):
         parameters = {
           'steamid': self.steamID
         }
-        try:
-          response = self.Bot.Ajax('RemoveFriendAjax', parameters)
-        except (HTTPError, URLError) as error:
-          return False
-          self.Bot.log("Couldn't remove " + self.steamID + " from the friends list. " + str(error.code) + " ERROR.")
-        else:
-          return True
+        response = self.Bot.Ajax('RemoveFriendAjax', parameters)
+        if response:
           self.Bot.log("Removed " + self.steamID + " from the friends list.")
+          return True
+        else:
+          self.Bot.log("Couldn't remove " + self.steamID + " from the friends list.")
+          return False
 
       def summary(self):
         if self.loaded is False:
@@ -252,7 +249,10 @@ class Bot(object):
           parameters["get_sent_offers"] = 1
         else:
           parameters["get_received_offers"] = 1
-        response = self.Bot.API("IEconService/GetTradeOffers/v0001", parameters)
+
+      offersList = []
+      response = self.Bot.API("IEconService/GetTradeOffers/v0001", parameters)
+      if response:
         response = response[u"response"]
         if offerType == "sent":
           if u"trade_offers_sent" in response:
@@ -265,47 +265,49 @@ class Bot(object):
           else:
             offersList = []
 
-      offers = {}
-      for offer in offersList:
-        offerID = int(offer[u"tradeofferid"])
-        if offer[u"trade_offer_state"] == offerState:
-          if offerID in self.offersCache:
-            offers[offerID] = self.offersCache[offerID]
+        offers = {}
+        for offer in offersList:
+          offerID = int(offer[u"tradeofferid"])
+          if offer[u"trade_offer_state"] == offerState:
+            if offerID in self.offersCache:
+              offers[offerID] = self.offersCache[offerID]
+            else:
+              accountID = offer[u"accountid_other"]
+              partnerID = "STEAM_0:%d:%d" % (accountID & 1, accountID >> 1)
+              partnerID = SID(partnerID).toCommunity()
+              Partner = self.Bot.Community().GetFriends(steamID = str(partnerID))
+
+              itemsToGive = []
+              if u"items_to_give" in offer:
+                broken = False
+                for item in offer[u"items_to_give"]:
+                  classID = item[u"classid"].encode('ascii', 'ignore')
+                  amount = int(item[u"amount"])
+                  itemsToGive.append([amount, classID])
+
+              itemsToReceive = []
+              if u"items_to_receive" in offer:
+                broken = False
+                for item in offer[u"items_to_receive"]:
+                  classID = item[u"classid"].encode('ascii', 'ignore')
+                  amount = int(item[u"amount"])
+                  itemsToReceive.append([amount, classID])
+
+              offer = self.Offer(offerID, self.Bot, Partner = Partner)
+              offer.itemsToGive = itemsToGive
+              offer.itemsToReceive = itemsToReceive
+              offers[offerID] = offer
           else:
-            accountID = offer[u"accountid_other"]
-            partnerID = "STEAM_0:%d:%d" % (accountID & 1, accountID >> 1)
-            partnerID = SID(partnerID).toCommunity()
-            Partner = self.Bot.Community().GetFriends(steamID = str(partnerID))
+            print self.Offer(offerID, self.Bot).decline()
+            self.Bot.log("Offer #" + str(offerID) + " had the wrong state and was declined. State: " + str(offer[u"trade_offer_state"]))
 
-            itemsToGive = []
-            if u"items_to_give" in offer:
-              broken = False
-              for item in offer[u"items_to_give"]:
-                classID = item[u"classid"].encode('ascii', 'ignore')
-                amount = int(item[u"amount"])
-                itemsToGive.append([amount, classID])
-
-            itemsToReceive = []
-            if u"items_to_receive" in offer:
-              broken = False
-              for item in offer[u"items_to_receive"]:
-                classID = item[u"classid"].encode('ascii', 'ignore')
-                amount = int(item[u"amount"])
-                itemsToReceive.append([amount, classID])
-
-            offer = self.Offer(offerID, self.Bot, Partner = Partner)
-            offer.itemsToGive = itemsToGive
-            offer.itemsToReceive = itemsToReceive
-            offers[offerID] = offer
+        if ID and ID not in offersCache:
+          self.offersCache[ID] = offers[ID]
         else:
-          self.Offer(offerID, self.Bot).decline()
-          self.Bot.log("Couldn't accept #" + str(offerID) + " offer. State: " + str(offer[u"trade_offer_state"]))
-
-      if ID and ID not in offersCache:
-        self.offersCache[ID] = offers[ID]
+          self.offersCache = offers
+        return offers
       else:
-        self.offersCache = offers
-      return offers
+        return False
 
     class Offer:
       def __init__(self, offerID, bot, Partner = False):
@@ -337,28 +339,35 @@ class Bot(object):
         parameters = {
           'tradeofferid': str(self.offerID)
         }
-        data = urllib.urlencode(parameters)
-        try:
-          response = self.Bot.browser.open("http://api.steampowered.com/IEconService/DeclineTradeOffer/v1/?key=" + self.Bot.steam["api"], data)
-        except (HTTPError, URLError) as error:
-          return False
-          self.Bot.log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
-        else:
+        response = self.Bot.API("IEconService/DeclineTradeOffer/v1", parameters)
+        if response:
           return True
           self.Bot.log("Declined #" + str(self.offerID) + " offer.")
+        else:
+          return False
+          self.Bot.log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
 
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
-    response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data)
-    response = json.loads(response.read())
-    return response
+    try:
+      response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 1.0)
+    except (HTTPError, URLError) as error:
+      return False
+    else:
+      response = json.loads(response.read())
+      return response
 
   def Ajax(self, action, parameters):
     parameters['sessionID'] = self.sessionid
     data = urllib.urlencode(parameters)
-    response = self.browser.open("http://steamcommunity.com/actions/" + action, data)
-    response = json.loads(response.read())
+    try:
+      response = self.browser.open("http://steamcommunity.com/actions/" + action, data)
+    except (HTTPError, URLError) as error:
+      return False
+    else:
+      response = json.loads(response.read())
+      return response
 
 class SID:
   def __init__(self, steamID):

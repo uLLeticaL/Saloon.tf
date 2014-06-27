@@ -17,7 +17,7 @@ class SteamWebCallback(object):
     # Manual authentication
     if RBot.emailPassword is None:
       while True:
-        self.Bot.Log("GuardCode sent to " + RBot.emailAddress)
+        self.Bot.log("GuardCode sent to " + RBot.emailAddress)
         guardCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "GuardCode: ")
         return guardCode
     else:
@@ -80,52 +80,64 @@ class TradesHandler(threading.Thread):
     while True:
       partners = {}
       offers = trade.GetOffers()
-      if len(offers) > 0:
-        for offerID in offers:
-          offer = offers[offerID]
-          steamID = offer.Partner.steamID
-          if steamID in partners:
-            partners[steamID].append(offer)
-          else:
-            partners[steamID] = [offer]
-        steamIDs = partners.keys()
-        RUsers = db.Session.query(db.Users).filter(db.Users.steamID.in_(steamIDs)).all()
-        for RUser in RUsers:
-          for offer in partners[str(RUser.steamID)]:
-            metal = 0
-            correctItems = []
-            if offer.itemsToReceive and not offer.itemsToGive:
-              success = OfferHandler(offer, RUser).Deposit()
-            elif offer.itemsToGive and not offer.itemsToReceive:
-              if RUser.steamID not in queue:
-                success = False
+      accepted = False
+      print offers
+      if offers is not False:
+        if len(offers) > 0:
+          for offerID in offers:
+            offer = offers[offerID]
+            steamID = offer.Partner.steamID
+            if steamID in partners:
+              partners[steamID].append(offer)
+            else:
+              partners[steamID] = [offer]
+          steamIDs = partners.keys()
+          RUsers = db.Session.query(db.Users).filter(db.Users.steamID.in_(steamIDs)).all()
+          for RUser in RUsers:
+            for offer in partners[str(RUser.steamID)]:
+              metal = 0
+              correctItems = []
+              if offer.itemsToReceive and not offer.itemsToGive:
+                success = OfferHandler(offer, RUser).Deposit()
+              elif offer.itemsToGive and not offer.itemsToReceive:
+                if RUser.steamID not in queue:
+                  success = False
+                else:
+                  success = OfferHandler(offer, RUser).Withdraw()
               else:
-                success = OfferHandler(offer, RUser).Withdraw()
-            else:
-              success = False
+                offer.decline()
+                success = False
 
-            if success:
-              print offer.accept()
-              Bot.Log("Accepted trade #" + str(offer.offerID) + " from " + RUser.name + ".")
-              if RUser.steamID in listeners:
-                jsonString = json.dumps(["accepted"])
-                listeners[RUser.steamID].sendMessage(jsonString)
-              if RUser.steamID in queue:
-                QueueHandler().timeout(steamID)
-            else:
+              if success == 2:
+                accepted = True
+                Bot.log("Accepted trade #" + str(offer.offerID) + " from " + RUser.name + ".")
+                if RUser.steamID in listeners:
+                  jsonString = json.dumps(["accepted"])
+                  listeners[RUser.steamID].sendMessage(jsonString)
+                if RUser.steamID in queue:
+                  QueueHandler().timeout(steamID)
+              elif success == 1:
+                Bot.log("Something went wrong with accepting #" + str(offer.offerID) + " offer from " + RUser.name + ".")
+                if RUser.steamID in listeners:
+                  jsonString = json.dumps(["error"])
+                  listeners[RUser.steamID].sendMessage(jsonString)
+                if RUser.steamID in queue:
+                  QueueHandler().extend(steamID)
+              else:
+                Bot.log("Trade #" + str(offer.offerID) + " had invalid items. Declining.")
+                if RUser.steamID in listeners:
+                  jsonString = json.dumps(["declined"])
+                  listeners[RUser.steamID].sendMessage(jsonString)
+            del partners[str(RUser.steamID)]
+
+          for steamID in partners:
+            Bot.log("User with SteamID: " + str(steamID) + " isn't registered yet. Declining his offers.")
+            for offer in partners[steamID]:
               offer.decline()
-              Bot.Log("Trade #" + str(offer.offerID) + " had invalid items. Declining.")
-              if RUser.steamID in listeners:
-                jsonString = json.dumps(["declined"])
-                listeners[RUser.steamID].sendMessage(jsonString)
-          del partners[str(RUser.steamID)]
-
-        for steamID in partners:
-          Bot.Log("User with SteamID: " + str(steamID) + " isn't registered yet. Declining his offers.")
-          for offer in partners[steamID]:
-            offer.decline()
-      db.Session.commit()
-      time.sleep(3)
+          if accepted:
+            db.Session.commit()
+        else:
+          time.sleep(1)
 
 class OfferHandler(object):
   def __init__(self, offer, RUser):
@@ -144,13 +156,18 @@ class OfferHandler(object):
           RUserItem = getattr(self.RUser.Items[0], RItem.name)
           correctItems.append([RItem.name, item[0]])
       else:
+        self.offer.decline()
         return False
-    correctItems.append(['metal', metal])
-    for item in correctItems:
-      itemValue = getattr(self.RUser.Items[0], item[0])
-      itemValue += item[1]
-      setattr(self.RUser.Items[0], item[0], itemValue)
-      return True
+    if self.offer.accept():
+      correctItems.append(['metal', metal])
+      for item in correctItems:
+        itemValue = getattr(self.RUser.Items[0], item[0])
+        itemValue += item[1]
+        setattr(self.RUser.Items[0], item[0], itemValue)
+        return 2
+    else:
+      return 1
+
 
   def Withdraw(self):
     metal = 0
@@ -164,22 +181,26 @@ class OfferHandler(object):
           RUserItem = getattr(self.RUser.Items[0], RItem.name)
           correctItems.append([RItem.name, item[0]])
       else:
+        self.offer.decline()
         return False
-    correctItems.append(['metal', metal])
-    for item in correctItems:
-      itemValue = getattr(self.RUser.Items[0], item[0])
-      itemValue -= item[1]
-      setattr(self.RUser.Items[0], item[0], itemValue)
-      return True
+    if self.offer.accept():
+      correctItems.append(['metal', metal])
+      for item in correctItems:
+        itemValue = getattr(self.RUser.Items[0], item[0])
+        itemValue -= item[1]
+        setattr(self.RUser.Items[0], item[0], itemValue)
+        return 2
+    else:
+      return 1
 
 class QueueHandler:
   def add(self, steamID):
     queue.append(steamID)
     if len(queue) == 1:
       jsonString = json.dumps(["hello",RBot.id])
-      r = threading.Timer(60.0, self.timeout, [steamID])
-      r.daemon = True
-      r.start()
+      self.r = threading.Timer(60.0, self.timeout, [steamID])
+      self.r.daemon = True
+      self.r.start()
     else:
       jsonString = json.dumps(["queue", "position", len(queue) - 1])
     listeners[steamID].sendMessage(jsonString)
@@ -194,6 +215,9 @@ class QueueHandler:
     if steamID in queue:
       queue.remove(steamID)
     self.update()
+
+  def extend(self, steamID):
+    self.r.target += 5
 
   def update(self):
     print current
