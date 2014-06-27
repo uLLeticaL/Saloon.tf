@@ -21,7 +21,7 @@ class Bots(Base):
 class Users(Base):
   __tablename__ = 'users'
   id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String(convert_unicode=True))
   avatar = Column(String)
   steamID = Column(Integer)
   level = Column(Integer)
@@ -32,6 +32,16 @@ class UsersItems(Base):
   user = Column(Integer, ForeignKey('users.id'), primary_key=True)
   keys = Column(Integer)
   metal = Column(Integer)
+
+class UsersPermissions(Base):
+  __tablename__ = 'usersPermissions'
+  user = Column(Integer, ForeignKey('users.id'), primary_key=True)
+  manage = Column(Boolean)
+  leagues = Column(Boolean)
+  teams = Column(Boolean)
+  users = Column(Boolean)
+  bets = Column(Boolean)
+  bots = Column(Boolean)
 
 class Matches(Base):
   __tablename__ = 'matches'
@@ -58,7 +68,7 @@ class Leagues(Base):
 class Teams(Base):
   __tablename__ = 'teams'
   id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String(convert_unicode=True))
   country = Column(String, ForeignKey('countries.id'))
   Country = relationship("Countries")
   league = Column(Integer)
