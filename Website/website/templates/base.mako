@@ -30,7 +30,7 @@
             <li class="${'active' if c.current == "home" else ''}"><a href="/home/">Home</a></li>
             %if c.user:
               <li class="${'active' if c.current == "inventory" else ''}"><a href="/inventory/">Inventory</a></li>
-              %if c.user["level"] <= 3:
+              %if c.user["permissions"].manage:
                 <li class="${'active' if c.current == "manage" else ''}"><a href="/manage/">Manage</a></li>
               %endif
             %endif
