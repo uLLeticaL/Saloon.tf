@@ -24,8 +24,8 @@ class Users(Base):
   name = Column(String(convert_unicode=True))
   avatar = Column(String)
   steamID = Column(Integer)
-  level = Column(Integer)
   Items = relationship("UsersItems")
+  Permissions = relationship("UsersPermissions")
 
 class UsersItems(Base):
   __tablename__ = 'usersItems'
