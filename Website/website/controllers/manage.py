@@ -20,7 +20,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.level <= 3:
+      if RUser.Permissions[0].manage:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "dashboard"
@@ -37,7 +37,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.leagues:
+      if RUser.Permissions[0].leagues:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "leagues"
@@ -76,7 +76,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.leagues:
+      if RUser.Permissions[0].leagues:
         params = ["name", "type", "region", "avatar", "accentColour"]
         if all(item in request.params for item in params):
           if request.params["avatar"].filename[-4:] != ".png":
@@ -116,7 +116,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.leagues:
+      if RUser.Permissions[0].leagues:
         RLeague = db.Session.query(db.Leagues).filter(db.Leagues.id == id).first()
         if RLeague:
           db.Session.delete(RLeague)
@@ -139,7 +139,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.leagues:
+      if RUser.Permissions[0].leagues:
         RLeague = db.Session.query(db.Leagues).filter(db.Leagues.id == id).first()
         print request.params
         if RLeague:
@@ -166,7 +166,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.teams:
+      if RUser.Permissions[0].teams:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "teams"
@@ -196,7 +196,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.teams:
+      if RUser.Permissions[0].teams:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "teams"
@@ -243,7 +243,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.teams:
+      if RUser.Permissions[0].teams:
         RTeam = db.Teams(name=request.params["name"], country=request.params["country"], league=leagueID, leagueID=request.params["leagueID"])
         db.Session.add(RTeam)
         db.Session.commit()
@@ -274,7 +274,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.teams:
+      if RUser.Permissions[0].teams:
         RTeam = db.Session.query(db.Teams).filter(db.Teams.id == teamID).first()
         if (RTeam):
           RTeam.name = request.params["name"]
@@ -305,7 +305,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.teams:
+      if RUser.Permissions[0].teams:
         RTeam = db.Session.query(db.Teams).filter(db.Teams.id == teamID).first()
         if RTeam:
           RMatch = db.Session.query(db.Matches).filter(db.or_(db.Matches.team1 == teamID, db.Matches.team2 == teamID)).first()
@@ -337,7 +337,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.bets:
+      if RUser.Permissions[0].bets:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "matches"
@@ -367,7 +367,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.bets:
+      if RUser.Permissions[0].bets:
         c.user = user[1]
         c.current = "manage"
         c.managePage = "matches"
@@ -425,7 +425,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.bets:
+      if RUser.Permissions[0].bets:
         RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
         db.Session.add(RMatch)
         db.Session.commit()
@@ -442,7 +442,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.bets:
+      if RUser.Permissions[0].bets:
         RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
         if RMatch:
           RMatch.league = leagueID
@@ -471,7 +471,7 @@ class ManageController(BaseController):
     user = User()
     if user:
       RUser = user[0]
-      if RUser.Permissions.bets:
+      if RUser.Permissions[0].bets:
         RMatch = db.Session.query(db.Matches).filter(db.Matches.id == matchID).first()
         if RMatch:
           db.Session.delete(RMatch)

@@ -11,8 +11,7 @@ def User():
       user["id"] = RUser.id
       user["name"] = RUser.name
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + RUser.avatar + "_full.jpg"
-      user["level"] = RUser.level
-      user["permissions"] = RUser.Permissions
+      user["permissions"] = RUser.Permissions[0]
     else:
       url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], user["steamid"])
       print url
