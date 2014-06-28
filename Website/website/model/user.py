@@ -25,9 +25,10 @@ def User():
       user["id"] = RUser.id
       RUserItems = db.UsersItems(user = user["id"], keys = 0, metal = 0)
       db.Session.add(RUserItems)
-      RUserPermissions = db.UsersItems(user = user["id"])
+      RUserPermissions = db.UsersPermissions(user = user["id"], manage = False, leagues = False, teams = False, users = False, bets = False, bots = False)
       db.Session.add(RUserPermissions)
       db.Session.commit()
+      user["permissions"] = RUser.Permissions[0]
     return [RUser, user]
   else:
     return False
