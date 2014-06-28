@@ -36,6 +36,11 @@ def make_map(config):
     map.connect('/manage/matches/{leagueID}/add/', controller='manage', action='addMatch')
     map.connect('/manage/matches/{leagueID}/remove/{matchID}/', controller='manage', action='removeMatch')
     map.connect('/manage/matches/{leagueID}/edit/{matchID}/', controller='manage', action='editMatch')
+    map.connect('/manage/users/', controller='manage', action='users')
+    map.connect('/api/users/name/{name}/', controller='api', action='users')
+    map.connect('/api/users/steamid/{steamid}/', controller='api', action='users')
+    map.connect('/api/users/name/{name}/limit/{limit}/', controller='api', action='users')
+    map.connect('/api/users/steamid/{steamid}/limit/{limit}/', controller='api', action='users')
     
     map.connect('/{controller}/', action='index')
     map.connect('/{controller}/{action}/')
