@@ -14,9 +14,7 @@ log = logging.getLogger(__name__)
 class ManageController(BaseController):
 
   def index(self):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -31,9 +29,7 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def leagues(self):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -70,9 +66,7 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def addLeague(self):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns redirection to /manage/leagues
     user = User()
     if user:
       RUser = user[0]
@@ -110,9 +104,7 @@ class ManageController(BaseController):
       return redirect("/")
 
   def removeLeague(self, id):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -133,9 +125,7 @@ class ManageController(BaseController):
     return json.dumps(array)
 
   def editLeague(self, id):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -160,9 +150,7 @@ class ManageController(BaseController):
     return json.dumps(array)
 
   def teamsLeagues(self):
-    # Return a rendered template
-    #return render('manage/teams.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -190,9 +178,7 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def teamsList(self, leagueID):
-    # Return a rendered template
-    #return render('manage/teams.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -237,9 +223,7 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def addTeam(self, leagueID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a redirection to /manage/teams/{leagueID}
     user = User()
     if user:
       RUser = user[0]
@@ -268,9 +252,7 @@ class ManageController(BaseController):
       return redirect("/")
 
   def editTeam(self, leagueID, teamID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -299,9 +281,7 @@ class ManageController(BaseController):
     return json.dumps(array)
 
   def removeTeam(self, leagueID, teamID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -331,9 +311,7 @@ class ManageController(BaseController):
     return json.dumps(array)
   
   def matchesLeagues(self):
-    # Return a rendered template
-    #return render('manage/matches.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -361,9 +339,7 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def matchesList(self, leagueID):
-    # Return a rendered template
-    #return render('manage/teams.mako')
-    # or, return a string
+    # Returns a rendered template
     user = User()
     if user:
       RUser = user[0]
@@ -419,15 +395,18 @@ class ManageController(BaseController):
       return redirect('http://saloon.tf/home/')
 
   def addMatch(self, leagueID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a redirection to matches
     user = User()
     if user:
       RUser = user[0]
       if RUser.Permissions[0].bets:
         RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
         db.Session.add(RMatch)
+        db.Session.commit()
+        RBetsTotal1 = db.BetsTotal(match=RMatch.id, team=request.params["team1"], buds=0, bills=0, keys=0, metal=0)
+        RBetsTotal2 = db.BetsTotal(match=RMatch.id, team=request.params["team2"], buds=0, bills=0, keys=0, metal=0)
+        db.Session.add(RBetsTotal1)
+        db.Session.add(RBetsTotal2)
         db.Session.commit()
         return redirect("/manage/matches/")
       else:
@@ -436,9 +415,7 @@ class ManageController(BaseController):
       return redirect("/")
 
   def editMatch(self, leagueID, matchID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -465,9 +442,7 @@ class ManageController(BaseController):
     return json.dumps(array)
 
   def removeMatch(self, leagueID, matchID):
-    # Return a rendered template
-    #return render('/manage.mako')
-    # or, return a string
+    # Returns a json string
     user = User()
     if user:
       RUser = user[0]
@@ -490,3 +465,18 @@ class ManageController(BaseController):
 
     array = {"success": success, "message": message}
     return json.dumps(array)
+
+  def users(self):
+    # Returns rendered template
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.Permissions[0].users:
+        c.user = user[1]
+        c.current = "manage"
+        c.managePage = "users"
+        return render('/manage/users/index.mako')
+      else:
+        return redirect("/")
+    else:
+      return redirect("/")

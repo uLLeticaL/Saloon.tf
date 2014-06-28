@@ -77,6 +77,7 @@ class Teams(Base):
 class BetsTotal(Base):
   __tablename__ = "betsTotal"
   id = Column(Integer, primary_key=True)
+  match = Column(Integer)
   team = Column(Integer)
   buds = Column(String)
   bills = Column(Integer)
