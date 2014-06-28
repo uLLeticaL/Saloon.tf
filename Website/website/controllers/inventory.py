@@ -22,21 +22,19 @@ class InventoryController(BaseController):
             c.current = "inventory"
             if not c.user:
               return redirect("http://saloon.tf/home/")
-            c.items = {}
-            c.items["names"] = ["keys","refs","recs","scraps"]
+            c.inventory = {}
+            c.inventory["names"] = ["keys","refs","recs","scraps"]
             c.hasItems = False
-            c.items["quantity"] = []
-            c.items["quantity"].append(RUser.Items[0].keys)
-            if RUser.Items[0].keys > 0:
+            c.inventory["quantity"] = []
+            c.inventory["quantity"].append(c.user["items"].keys)
+            if c.user["items"].keys > 0 or c.user["items"].metal > 0:
                 c.hasItems = True
-            metal = RUser.Items[0].metal
-            if metal > 0:
-                c.hasItems = True
-            c.items["quantity"].append(metal / 9)
-            metal -= c.items["quantity"][1] * 9
-            c.items["quantity"].append(metal / 3)
-            metal -= c.items["quantity"][2] * 3
-            c.items["quantity"].append(metal)
+            metal = c.user["items"].metal
+            c.inventory["quantity"].append(metal / 9)
+            metal -= c.inventory["quantity"][1] * 9
+            c.inventory["quantity"].append(metal / 3)
+            metal -= c.inventory["quantity"][2] * 3
+            c.inventory["quantity"].append(metal)
             return render('/inventory.mako')
         else:
             return redirect('http://saloon.tf/home/')

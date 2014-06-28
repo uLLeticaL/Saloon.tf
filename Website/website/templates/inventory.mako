@@ -41,8 +41,8 @@
   </div>
   <div class="items well">
     %if c.hasItems:
-      %for index, name in enumerate(c.items["names"]):
-        %for item in range(0, c.items["quantity"][index]):
+      %for index, name in enumerate(c.inventory["names"]):
+        %for item in range(0, c.inventory["quantity"][index]):
           <div class="item ${name}">
             <div class="check"><i class="fa fa-check"></i></div>
             <img src="/images/items/${name}.png">
