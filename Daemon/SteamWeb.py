@@ -297,9 +297,6 @@ class Bot(object):
               offer.itemsToGive = itemsToGive
               offer.itemsToReceive = itemsToReceive
               offers[offerID] = offer
-          else:
-            print self.Offer(offerID, self.Bot).decline()
-            self.Bot.log("Offer #" + str(offerID) + " had the wrong state and was declined. State: " + str(offer[u"trade_offer_state"]))
 
         if ID and ID not in offersCache:
           self.offersCache[ID] = offers[ID]
