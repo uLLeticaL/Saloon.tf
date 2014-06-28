@@ -47,6 +47,18 @@ module.exports = function(grunt) {
           '../public/stylesheet.css': 'sass/styles.sass'
         }
       }
+    },
+    'string-replace': {
+      dist: {
+        src: '../templates/base.mako',
+        dest: '../templates/base.mako',
+        options: {
+          replacements: [{
+            pattern: /\?v=[0-9]+\.[0-9]+\.[0-9]+/g,
+            replacement: '\?v=<%= pkg.version %>'
+          }]
+        }
+      }
     }
   });
 
@@ -58,8 +70,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   // Load the plugin that provides the "sass" task.
   grunt.loadNpmTasks('grunt-contrib-sass');
+  // Load the plugin that provides the "version" task.
+  grunt.loadNpmTasks('grunt-string-replace');
 
   // Default task(s).
-  grunt.registerTask('default', ['coffee','uglify','sass']);
+  grunt.registerTask('default', ['coffee','uglify','sass','string-replace']);
 
 };

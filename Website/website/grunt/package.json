@@ -1,6 +1,6 @@
 {
   "name": "Saloon.tf",
-  "version": "0.1.1",
+  "version": "0.2.33",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.6.3",
@@ -11,6 +11,6 @@
     "grunt-contrib-coffee": "~0.10.1",
     "grunt-contrib-concat": "~0.4.0",
     "grunt-string-replace": "~0.2.7",
-    "grunt-bump": "~0.0.14"
+    "grunt-contrib-bump": "~0.1.0"
   }
 }
