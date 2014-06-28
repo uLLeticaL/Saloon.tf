@@ -22,7 +22,7 @@ class BetController(BaseController):
           c.user = False
         c.current = "bet"
 
-        RMatch = db.Session.query(db.Matches).first()
+        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == id).first()
         RItems = db.Session.query(db.Items).all()
 
         items = {}
