@@ -170,4 +170,18 @@ $ ->
           )
           false
         return
+
+    if $("#user-search").length > 0
+      $("#user-search").on "keyup", ->
+        if $("#user-search").val().length
+          $.getJSON "/api/users/name/" + $("#user-search").val() + "/limit/5/", (data) ->
+            if $(".search .list-group").length == 0
+              $(".search").append "<div class=\"list-group\"></div>"
+            else
+              $(".search .list-group").empty()
+            for player in data
+              $(".search .list-group").append("<a class=\"list-group-item\" href=\"/manage/users/" + player["id"] + "/\"><i class=\"fa fa-user\"></i> " + player["name"] + "</a>")
+        else
+          $(".search .list-group").remove()
+        return
 return

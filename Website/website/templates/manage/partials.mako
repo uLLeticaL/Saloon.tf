@@ -14,7 +14,7 @@
         <a href="/manage/matches/" class="list-group-item ${'active' if c.managePage == "matches" else ''}"><i class="fa fa-gavel"></i> Matches</a>
       %endif
       %if c.user["permissions"].users:
-        <a href="#" class="list-group-item"><i class="fa fa-user"></i> Users</a>
+        <a href="/manage/users/" class="list-group-item ${'active' if c.managePage == "users" else ''}"><i class="fa fa-user"></i> Users</a>
       %endif
       %if c.user["permissions"].bets:
         <a href="#" class="list-group-item"><i class="fa fa-ticket"></i> Tickets</a>

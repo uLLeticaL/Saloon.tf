@@ -258,7 +258,7 @@
         });
       }
       if ($(".editMatch-button").length > 0) {
-        return $(".editMatch-button").on("click", function() {
+        $(".editMatch-button").on("click", function() {
           var array;
           array = $(this).data("json");
           $('#editMatch-form [name="team1"]').val(array["team1"]["id"]);
@@ -287,6 +287,28 @@
             });
             return false;
           });
+        });
+      }
+      if ($("#user-search").length > 0) {
+        return $("#user-search").on("keyup", function() {
+          if ($("#user-search").val().length) {
+            $.getJSON("/api/users/name/" + $("#user-search").val() + "/limit/5/", function(data) {
+              var player, _i, _len, _results;
+              if ($(".search .list-group").length === 0) {
+                $(".search").append("<div class=\"list-group\"></div>");
+              } else {
+                $(".search .list-group").empty();
+              }
+              _results = [];
+              for (_i = 0, _len = data.length; _i < _len; _i++) {
+                player = data[_i];
+                _results.push($(".search .list-group").append("<a class=\"list-group-item\" href=\"/manage/users/" + player["id"] + "/\"><i class=\"fa fa-user\"></i> " + player["name"] + "</a>"));
+              }
+              return _results;
+            });
+          } else {
+            $(".search .list-group").remove();
+          }
         });
       }
     }
