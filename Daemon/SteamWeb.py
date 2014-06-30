@@ -17,8 +17,8 @@ class Bot(object):
     self.steam = steam
 
     self.Callback = Callback
+    self.Callback.Bot = self
 
-    self.sessionid = False
     self.cookiejar = cookielib.LWPCookieJar()
     self.cookiefile = "cookies/" + self.steam["login"]
     if os.path.isfile(self.cookiefile):
@@ -28,7 +28,7 @@ class Bot(object):
     self.browser.set_handle_robots(False)
     self.browser.set_cookiejar(self.cookiejar)
 
-    self.OAuth(self)
+    self.Authenticate()
 
   def log(self, message):
     self.Callback.log(self.name, message)
@@ -84,8 +84,8 @@ class Bot(object):
       response = self.Bot.browser.open("https://steamcommunity.com/login/dologin/", data)
       response = json.loads(response.read())
       if response[u"success"]:
-        self.Bot.sessionid = self.getSessionId()
         self.Bot.cookiejar.save(self.Bot.cookiefile)
+        self.Bot.sessionid = self.getSessionId()
         self.Bot.log("Logged in successfully")
         return True
       elif response[u"message"] == u"SteamGuard":
@@ -117,7 +117,7 @@ class Bot(object):
           
     def getSessionId(self):
       response = self.Bot.browser.open("http://steamcommunity.com/profiles/GoHomeValveYoureDrunk")
-      sessionId = re.findall(r'g_sessionID = "(.*?)"', response.read())[0]
+      sessionId = re.findall(r'g_sessionID = "(.*?)";', response.read())[0]
       return sessionId
 
   class OCommunity(object):
@@ -321,16 +321,17 @@ class Bot(object):
           'tradeofferid': str(self.offerID).encode("utf-8"),
           'sessionid': self.Bot.sessionid.encode("utf-8")
         }
-
+        print parameters
         data = urllib.urlencode(parameters)
-        try:
-          response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/" + str(self.offerID) + "/accept", data)
-        except (HTTPError, URLError) as error:
-          return False
-          self.Bot.log("Couldn't accept #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
-        else:
-          return True
+        for i in range(0,3):
+          try:
+            response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/" + str(self.offerID) + "/accept", data)
+          except (HTTPError, URLError) as error:
+            continue
           self.Bot.log("Accepted #" + str(self.offerID) + " offer.")
+          return True
+        self.Bot.log("Couldn't accept #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
+        return False
 
       def decline(self):
         parameters = {
@@ -347,24 +348,26 @@ class Bot(object):
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
-    try:
-      response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 1.0)
-    except (HTTPError, URLError) as error:
-      return False
-    else:
+    for i in range(0,3):
+      try:
+        response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 3.0)
+      except (HTTPError, URLError) as error:
+        continue
       response = json.loads(response.read())
       return response
+    return False
 
   def Ajax(self, action, parameters):
     parameters['sessionID'] = self.sessionid
     data = urllib.urlencode(parameters)
-    try:
-      response = self.browser.open("http://steamcommunity.com/actions/" + action, data)
-    except (HTTPError, URLError) as error:
-      return False
-    else:
+    for i in range(0,3):
+      try:
+        response = self.browser.open("http://steamcommunity.com/actions/" + action, data)
+      except (HTTPError, URLError) as error:
+        continue
       response = json.loads(response.read())
       return response
+    return False
 
 class SID:
   def __init__(self, steamID):

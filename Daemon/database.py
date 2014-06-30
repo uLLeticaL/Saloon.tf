@@ -24,6 +24,7 @@ class Users(Base):
   name = Column(String(convert_unicode=True))
   avatar = Column(String)
   steamID = Column(Integer)
+  bot = Column(Integer)
   Items = relationship("UsersItems")
   Permissions = relationship("UsersPermissions")
 

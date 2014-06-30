@@ -1,0 +1,10 @@
+{
+  "name": "Saloon.tf's Daemon",
+  "version": "0.1.0",
+  "devDependencies": {
+    "colors": "*",
+    "ws": "*",
+    "steam": "*",
+    "domain": "*",
+  }
+}
