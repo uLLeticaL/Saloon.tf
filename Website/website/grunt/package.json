@@ -1,6 +1,6 @@
 {
   "name": "Saloon.tf",
-  "version": "0.2.33",
+  "version": "0.2.34",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.6.3",
