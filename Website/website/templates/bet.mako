@@ -4,7 +4,7 @@
   <!-- add some head tags here -->
 </%def>
 <div class="container bets">
-  <div class="well bet ${c.match["league"]["name"]} text-center" data-id="${c.match["id"]}">
+  <div class="clearfix well bet ${c.match["league"]["name"]} text-center" data-id="${c.match["id"]}">
     <div class="league-badge" style="background-color: #${c.match["league"]["colour"]};">
       <img src="/images/leagues/${c.match["league"]["id"]}/logo.png">
     </div>

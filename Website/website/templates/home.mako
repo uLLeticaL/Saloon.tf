@@ -8,7 +8,7 @@
     <h2><i class="fa fa-gavel"></i> Bets</h2>
   </div>
   %for match in c.matches:
-    <div class="well bet ${match["league"]["name"]} text-center" data-id="${match["id"]}">
+    <div class="clearfix well bet ${match["league"]["name"]} text-center" data-id="${match["id"]}">
       <div class="league-badge" style="background-color: #${match["league"]["colour"]};">
         <img src="/images/leagues/${match["league"]["id"]}/logo.png">
       </div>
