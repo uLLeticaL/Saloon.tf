@@ -340,7 +340,7 @@ class Bot(object):
           self.Bot.Log("Declined #" + str(self.offerID) + " offer.")
           return True
         else:
-          self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
+          self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer.")
           return False
 
   def API(self, message, parameters):
