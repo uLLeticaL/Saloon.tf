@@ -5,7 +5,6 @@ import json
 import base64
 import colorama as color
 import urllib, cookielib
-import settings, utilities
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from mechanize import Browser, HTTPError, URLError
@@ -30,8 +29,8 @@ class Bot(object):
 
     self.Authenticate()
 
-  def log(self, message):
-    self.Callback.log(self.name, message)
+  def Log(self, message):
+    self.Callback.Log(self.name, message)
 
   def Community(self):
     # Pass Bot to the O objects.
@@ -52,11 +51,11 @@ class Bot(object):
 
     def signIn(self, guardNeeded = False, steamID = "", encrypted = "", captchaNeeded = False, captchaGid = "", captchaCode = ""):
       if guardNeeded:
-        self.Bot.log("SteamGuard code needed")
+        self.Bot.Log("SteamGuard code needed")
       else:
-        self.Bot.log("Encrypting password")
+        self.Bot.Log("Encrypting password")
         encrypted = self.encryptPassword(self.Bot.steam["login"], self.Bot.steam["password"].encode("ascii","ignore"))
-        self.Bot.log("Logging in")
+        self.Bot.Log("Logging in")
 
       parameters = {
         'username': self.Bot.steam["login"],
@@ -75,7 +74,7 @@ class Bot(object):
         parameters["emailauth"] = guardCode
         parameters["loginfriendlyname"] = "Saloon.TF"
         parameters["emailsteamid"] = steamID
-        self.Bot.log("Logging in again with SteamGuard code")
+        self.Bot.Log("Logging in again with SteamGuard code")
       if captchaNeeded:
         parameters["captchagid"] = captchaGid
         parameters["captcha_text"] = captchaCode
@@ -86,7 +85,7 @@ class Bot(object):
       if response[u"success"]:
         self.Bot.cookiejar.save(self.Bot.cookiefile)
         self.Bot.sessionid = self.getSessionId()
-        self.Bot.log("Logged in successfully")
+        self.Bot.Log("Logged in successfully")
         return True
       elif response[u"message"] == u"SteamGuard":
         # Try to log in again using SteamGuard code
@@ -95,7 +94,7 @@ class Bot(object):
         captchaCode = self.Bot.Callback.captchaCode(response[u"captcha_gid"])
         self.signIn(captchaNeeded = True, captchaGid = response[u"captcha_gid"], captchaCode = captchaCode)
       else:
-        self.Bot.log("Something went wrong. Message: " + response[u"message"])
+        self.Bot.Log("Something went wrong. Message: " + response[u"message"])
         return False
 
     def encryptPassword(self, login, password):
@@ -179,10 +178,10 @@ class Bot(object):
         response = self.Bot.Ajax('AddFriendAjax', parameters)
         if response:
           return True
-          self.Bot.log("Sent friend request to " + self.steamID)
+          self.Bot.Log("Sent friend request to " + self.steamID)
         else:
           return False
-          self.Bot.log("Couldn't add " + self.steamID + " to the friends list.")
+          self.Bot.Log("Couldn't add " + self.steamID + " to the friends list.")
 
       def accept(self):
         parameters = {
@@ -191,10 +190,10 @@ class Bot(object):
         }
         response = self.Bot.Ajax('AddFriendAjax', parameters)
         if response:
-          self.Bot.log("Accepted friend request from " + self.steamID)
+          self.Bot.Log("Accepted friend request from " + self.steamID)
           return True
         else:
-          self.Bot.log("Couldn't add " + self.steamID + " to the friends list.")
+          self.Bot.Log("Couldn't add " + self.steamID + " to the friends list.")
           return False
 
       def remove(self):
@@ -203,10 +202,10 @@ class Bot(object):
         }
         response = self.Bot.Ajax('RemoveFriendAjax', parameters)
         if response:
-          self.Bot.log("Removed " + self.steamID + " from the friends list.")
+          self.Bot.Log("Removed " + self.steamID + " from the friends list.")
           return True
         else:
-          self.Bot.log("Couldn't remove " + self.steamID + " from the friends list.")
+          self.Bot.Log("Couldn't remove " + self.steamID + " from the friends list.")
           return False
 
       def summary(self):
@@ -321,16 +320,15 @@ class Bot(object):
           'tradeofferid': str(self.offerID).encode("utf-8"),
           'sessionid': self.Bot.sessionid.encode("utf-8")
         }
-        print parameters
         data = urllib.urlencode(parameters)
         for i in range(0,3):
           try:
-            response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/" + str(self.offerID) + "/accept", data)
+            response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/" + str(self.offerID) + "/accept", data, timeout = 5.0)
           except (HTTPError, URLError) as error:
             continue
-          self.Bot.log("Accepted #" + str(self.offerID) + " offer.")
+          self.Bot.Log("Accepted #" + str(self.offerID) + " offer.")
           return True
-        self.Bot.log("Couldn't accept #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
+        self.Bot.Log("Couldn't accept #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
         return False
 
       def decline(self):
@@ -340,17 +338,17 @@ class Bot(object):
         response = self.Bot.API("IEconService/DeclineTradeOffer/v1", parameters)
         if response:
           return True
-          self.Bot.log("Declined #" + str(self.offerID) + " offer.")
+          self.Bot.Log("Declined #" + str(self.offerID) + " offer.")
         else:
           return False
-          self.Bot.log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
+          self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
 
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
     for i in range(0,3):
       try:
-        response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 3.0)
+        response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 5.0)
       except (HTTPError, URLError) as error:
         continue
       response = json.loads(response.read())
@@ -362,7 +360,7 @@ class Bot(object):
     data = urllib.urlencode(parameters)
     for i in range(0,3):
       try:
-        response = self.browser.open("http://steamcommunity.com/actions/" + action, data)
+        response = self.browser.open("http://steamcommunity.com/actions/" + action, data, timeout = 5.0)
       except (HTTPError, URLError) as error:
         continue
       response = json.loads(response.read())
