@@ -113,6 +113,7 @@ class Handler(object):
           # Begin processing trades if they meet requirements (online)
           if len(partners) > 0:
             steamIDs = partners.keys()
+            db.Session.commit()
             RUsers = db.Session.query(db.Users).filter(db.Users.steamID.in_(steamIDs)).all()
             for RUser in RUsers:
               for offer in partners[str(RUser.steamID)]:
