@@ -4,10 +4,15 @@ var Steam = require('steam');
 
 var WebSocket = require('ws');
 var ws = new WebSocket('ws://localhost:9000');
+
+function Log(name, message) {
+  console.log(("[" + name + "]").cyan, message);
+  ws.send('["log", "' + name + '", "' + message + '"]');
+}
+
 ws.on('open', function() {
-  console.log("[WebSocket]".cyan, "Connected successfully");
+  Log("WebSocket", "Connected successfully");
   ws.on('message', function(message) {
-    console.log("[WebSocket]".cyan, "Message:", message);
     array = JSON.parse(message);
     if (array[0] == "bot") {
       if (array.length == 2) {
@@ -20,7 +25,7 @@ ws.on('open', function() {
   });
 });
 ws.on('close', function() {
-  console.log("[WebSocket]".cyan, "Disconnected");
+  console.log(("[WebSocket]").cyan, "Disconnected");
   process.exit()
 });
 
@@ -46,33 +51,34 @@ function Bot(data, authCode) {
     bot.on('sentry', function(sentryHash) {
       fs.writeFile('sentry/' + data.steamLogin, sentryHash, function(err) {
         if (err)
-          console.log(("[" + data.name + "]").cyan, 'Error opening sentry file: ', err);
+          Log(data.name, 'Error opening sentry file: ' + err);
         else
-          console.log("[" + data.name + "]".cyan, 'Saved sentry file hash as "sentry/' + data.steamLogin + '"');
+          Log(data.name, "Saved sentry file hash as \"sentry/" + data.steamLogin + "\"");
       });
     });
 
     bot.on('loggedOn', function() {
       bot.setPersonaState(Steam.EPersonaState.Online);
-      console.log(("[" + data.name + "]").cyan, "Logged in successfully")
+      Log(data.name, "Logged in successfully")
     });
 
     bot.on('servers', function(servers) {
       fs.writeFile('servers', JSON.stringify(servers));
     });
-
+    var offers = 0
     bot.on('tradeOffers', function(number) {
-      if (number > 0) {
-        console.log(("[" + data.name + "]").cyan, "Got a trade offer");
+      if (number > offers) {
+        Log(data.name, "Got a trade offer");
         ws.send('["tradeOffers",' + data.id + ']')
       }
+      offers = number;
     }); 
   }
   else {
     var domain = require('domain').create();
     domain.on('error', function(err) {
       if (err.eresult == 63) {
-        console.log(("[" + data.name + "]").cyan, "Need SteamGuard code");
+        Log(data.name, "Need SteamGuard code");
         ws.send('["guardCode",' + data.id + ']');
       }
       else {

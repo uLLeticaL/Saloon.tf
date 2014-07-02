@@ -101,7 +101,7 @@ class Countries(Base):
   name = Column(String)
 
 from sqlalchemy import create_engine
-engine = create_engine(settings.database, echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
+engine = create_engine("postgresql://user:password@localhost:port/Database", echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
 
 Base.metadata.bind = engine
 

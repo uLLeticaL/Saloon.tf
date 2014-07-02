@@ -15,6 +15,7 @@ class InventoryController(BaseController):
         # Return a rendered template
         #return render('/inventory.mako')
         # or, return a string
+        db.Session.commit()
         user = User()
         if user:
             RUser = user[0]

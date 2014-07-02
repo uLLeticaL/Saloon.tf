@@ -1,4 +1,4 @@
-/*! Saloon.tf's CSS. Generated at 2014-06-30 */
+/*! Saloon.tf's CSS. Generated at 2014-07-02 */
 
 /*! normalize.css v3.0.1 | MIT License | git.io/normalize */
 html {
@@ -7078,68 +7078,68 @@ label {
 .block {
   display: block; }
 
-a body.home .bets .bet:hover {
+body.home .bets .bet:hover {
   cursor: pointer; }
-a body .bets .bet {
+body .bets .bet {
   margin: 15px 0; }
-  a body .bets .bet .league-badge {
+  body .bets .bet .league-badge {
     float: left;
     padding: 15px 10px;
     margin-right: 20px;
     border-radius: 4px; }
     @media screen and (max-width: 991px) {
-      a body .bets .bet .league-badge {
+      body .bets .bet .league-badge {
         margin: 0 0 19px 0;
         clear: both;
         float: none; } }
-  a body .bets .bet .team-0, a body .bets .bet .team-1 {
+  body .bets .bet .team-0, body .bets .bet .team-1 {
     display: table; }
     @media screen and (max-width: 767px) {
-      a body .bets .bet .team-0, a body .bets .bet .team-1 {
+      body .bets .bet .team-0, body .bets .bet .team-1 {
         clear: both; } }
-    a body .bets .bet .team-0 img, a body .bets .bet .team-1 img {
+    body .bets .bet .team-0 img, body .bets .bet .team-1 img {
       display: table-cell;
       max-width: 120px; }
-    a body .bets .bet .team-0 .details, a body .bets .bet .team-1 .details {
+    body .bets .bet .team-0 .details, body .bets .bet .team-1 .details {
       display: table-cell;
       vertical-align: top;
       padding: 5px 10px;
       color: #f6e7de; }
-      a body .bets .bet .team-0 .details h2, a body .bets .bet .team-0 .details h3, a body .bets .bet .team-1 .details h2, a body .bets .bet .team-1 .details h3 {
+      body .bets .bet .team-0 .details h2, body .bets .bet .team-0 .details h3, body .bets .bet .team-1 .details h2, body .bets .bet .team-1 .details h3 {
         margin: 0; }
-      a body .bets .bet .team-0 .details .specifics, a body .bets .bet .team-1 .details .specifics {
+      body .bets .bet .team-0 .details .specifics, body .bets .bet .team-1 .details .specifics {
         display: inline-block;
         font-size: 24px;
         text-align: left; }
-        a body .bets .bet .team-0 .details .specifics p, a body .bets .bet .team-1 .details .specifics p {
+        body .bets .bet .team-0 .details .specifics p, body .bets .bet .team-1 .details .specifics p {
           margin: 11px 0 0 0;
           line-height: 1.1; }
-  a body .bets .bet .team-0 {
+  body .bets .bet .team-0 {
     float: left; }
     @media screen and (max-width: 767px) {
-      a body .bets .bet .team-0 {
+      body .bets .bet .team-0 {
         margin: 0 0 10px 0; } }
-    a body .bets .bet .team-0 h2, a body .bets .bet .team-0 h3 {
+    body .bets .bet .team-0 h2, body .bets .bet .team-0 h3 {
       text-align: left; }
-    a body .bets .bet .team-0 .details .specifics {
+    body .bets .bet .team-0 .details .specifics {
       float: left; }
-  a body .bets .bet .team-1 {
+  body .bets .bet .team-1 {
     float: right; }
     @media screen and (max-width: 767px) {
-      a body .bets .bet .team-1 {
+      body .bets .bet .team-1 {
         float: left; } }
-    a body .bets .bet .team-1 h2, a body .bets .bet .team-1 h3 {
+    body .bets .bet .team-1 h2, body .bets .bet .team-1 h3 {
       text-align: right; }
       @media screen and (max-width: 767px) {
-        a body .bets .bet .team-1 h2, a body .bets .bet .team-1 h3 {
+        body .bets .bet .team-1 h2, body .bets .bet .team-1 h3 {
           text-align: left; } }
     @media screen and (max-width: 767px) {
-      a body .bets .bet .team-1 .details {
+      body .bets .bet .team-1 .details {
         float: right; } }
-    a body .bets .bet .team-1 .details .specifics {
+    body .bets .bet .team-1 .details .specifics {
       float: right; }
       @media screen and (max-width: 767px) {
-        a body .bets .bet .team-1 .details .specifics {
+        body .bets .bet .team-1 .details .specifics {
           float: left; } }
 
 body .items-header {
@@ -7229,6 +7229,8 @@ body .manage .well {
       padding-right: 10px; }
   body .manage .well.search .list-group {
     position: absolute; }
+  body .manage .well.user-avatar {
+    width: 128px; }
 body .manage .league-block {
   color: #eeeeee;
   position: relative;

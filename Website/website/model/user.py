@@ -1,6 +1,8 @@
 from pylons import request, response, session, tmpl_context as c, url, config
 import json, requests
 import database as db
+from random import randrange
+from sqlalchemy import func
 
 def User():
   user = {}
@@ -13,16 +15,14 @@ def User():
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + RUser.avatar + "_full.jpg"
       user["items"] = RUser.Items[0]
       user["permissions"] = RUser.Permissions[0]
-      user["steamid"] = RUser.steamID
-      user["botid"] = RUser.bot
     else:
       url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], user["steamid"])
-      print url
       data = requests.get(url).text
       player = json.loads(data)[u"response"][u"players"][0]
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + player[u"avatarfull"][67:-9] + "_full.jpg"
       user["name"] = player[u"personaname"]
-      RUser = db.Users(name = user["name"], avatar = player[u"avatarfull"][67:-9], steamID = user["steamid"])
+      botID = randrange(1, db.Session.query(func.count(db.Bots)).scalar())
+      RUser = db.Users(name = user["name"], avatar = player[u"avatarfull"][67:-9], steamID = user["steamid"], bot = botID)
       db.Session.add(RUser)
       db.Session.commit()
       user["id"] = RUser.id
