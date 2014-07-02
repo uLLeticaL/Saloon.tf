@@ -1,0 +1,7 @@
+-- Column: permissions
+
+-- ALTER TABLE "usersPermissions" DROP COLUMN permissions;
+
+ALTER TABLE "usersPermissions" ADD COLUMN permissions boolean;
+ALTER TABLE "usersPermissions" ALTER COLUMN permissions SET NOT NULL;
+ALTER TABLE "usersPermissions" ALTER COLUMN permissions SET DEFAULT false;
