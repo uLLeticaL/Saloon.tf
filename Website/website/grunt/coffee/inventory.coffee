@@ -1,10 +1,12 @@
+socket = undefined
+
 openConnection = (type) ->
   $("#" + type + "-modal .modal-body").html "
     <p class=\"connection-status\">
       <i class=\"fa fa-spinner fa-spin\"></i> Establishing connection with bot
     </p>
   "
-  socket = new WebSocket("ws://ssh.saloon.tf:9000")
+  socket = new WebSocket("ws://direct."  + window.location.host + ":9000")
   socket.onopen = ->
     $(".connection-status").html "<i class=\"fa fa-check\"></i> Connected"
     $("#" + type + "-modal .modal-body").append "
@@ -52,7 +54,7 @@ openConnection = (type) ->
         </p>
       "
       $("#" + type + "-modal .modal-body #trade-button").on "click", ->
-        window.open "http://saloon.tf/trade/" + botArray[1] + "/", "_blank"
+        window.open "/trade/" + botArray[1] + "/", "_blank"
         $("#" + type + "-modal .modal-body .button-paragraph").remove()
         if type is "deposit"
           $("#deposit-modal .modal-body").append "
@@ -96,19 +98,18 @@ openConnection = (type) ->
     else if array[0] is "accepted"
       $(".trade-status").html "<i class=\"fa fa-check\"></i> Trade completed!"
       window.setTimeout (->
-        window.open "http://saloon.tf/inventory/", "_self"
+        window.open "/inventory/", "_self"
         return
       ), 3000
     else if array[0] is "declined"
       $(".trade-status").html "<i class=\"fa fa-times\"></i> There was an error in the trade."
       window.setTimeout (->
-        window.open "http://saloon.tf/inventory/", "_self"
+        window.open "/inventory/", "_self"
         return
       ), 3000
     return
   return
 
-socket = undefined
 $ ->
   if page is "inventory"
     $("#deposit-modal").on "shown.bs.modal", (e) ->
