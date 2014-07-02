@@ -122,7 +122,7 @@ class Handler(object):
                 if self.offerType(offer) is "Deposit":
                   status = self.deposit(offer, RUser)
                 elif self.offerType(offer) is "Withdrawal":
-                  if RUser.steamID not in self.queue[self.Bot.id]:
+                  if RUser.steamID not in Handler.queue:
                     self.Bot.Log("User #" + RUser.steamID + " is not in the queue and his offer (" + str(offer.offerID) + ") will be declined.")
                     status = 3
                   else:
@@ -180,8 +180,7 @@ class Handler(object):
           itemValue += item[1]
           setattr(RUser.Items[0], item[0], itemValue)
         return 1
-      else:
-        return 0
+      return 0
 
     def withdraw(self, offer, RUser):
       metal = 0
@@ -193,10 +192,18 @@ class Handler(object):
             metal += (RItem.value * item[0])
           else:
             RUserItem = getattr(RUser.Items[0], RItem.name)
-            correctItems.append([RItem.name, item[0]])
+            if RUserItem >= item[0]:
+              correctItems.append([RItem.name, item[0]])
+            else:
+              offer.decline()
+              return 2
         else:
           offer.decline()
           return 2
+
+      if RUser.Items[0].metal < metal:
+        offer.decline()
+        return 2
       if offer.accept():
         correctItems.append(['metal', metal])
         for item in correctItems:
@@ -204,8 +211,7 @@ class Handler(object):
           itemValue -= item[1]
           setattr(RUser.Items[0], item[0], itemValue)
         return 1
-      else:
-        return 0
+      return 0
 
   def Queue(self):
     return self.OQueue(self)
