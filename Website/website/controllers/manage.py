@@ -1,6 +1,6 @@
 import logging
 
-from pylons import request, response, session, tmpl_context as c, url
+from pylons import request, response, session, tmpl_context as c, url, config
 from pylons.controllers.util import abort, redirect
 
 from website.lib.base import BaseController, render
@@ -486,31 +486,50 @@ class ManageController(BaseController):
     if user:
       RUser = user[0]
       if RUser.Permissions[0].users:
-        PUser = db.Session.query(db.Users).filter(db.Users.id == userID).first()
-        if request.POST:
-          PUser.name = request.POST["name"]
-	  PUser.avatar = request.POST["avatar"]
-	  PUser.steamID = request.POST["steamid"]
-	  PUser.bot = request.POST["bot"]
-	  db.Session.commit()
-	  # Need to reload the PUser object as its variables seem to disappear after commit()ing
-	  PUser = db.Session.query(db.Users).filter(db.Users.id == userID).first()
-        
-	c.user = user[1]
-	c.PUser =   PUser.__dict__
-        c.current = "manage"
-        c.managePage = "users"
+        ROtherUser = db.Session.query(db.Users).filter(db.Users.id == userID).first()
+        if ROtherUser:
+          if request.POST:
+            if int(request.POST["steamid"]) != ROtherUser.steamID:
+              url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], int(request.POST["steamid"]))
+              data = json.loads(requests.get(url).text)[u"response"][u"players"][0]
+              ROtherUser.avatar = data[u"avatarfull"][67:-9] + "_full.jpg"
+              ROtherUser.name = data[u"personaname"]
+              ROtherUser.steamID = request.POST["steamid"]
+            if RUser.Permissions[0].permissions:
+              for permission in ["manage", "leagues", "teams", "users", "bets", "bots"]:
+                if permission not in request.POST.getall("permissions"):
+                  setattr(ROtherUser.Permissions[0], permission, False)
+                else:
+                  setattr(ROtherUser.Permissions[0], permission, True)
 
-        RBots = db.Session.query(db.Bots).order_by(db.Bots.id).all()
-        c.bots = []
-        for RBot in RBots:
-          bot = {}
-          bot["id"] = RBot.id
-          bot["name"] = RBot.name
-          c.bots.append(bot)
+            ROtherUser.bot = int(request.POST["botID"])
 
-        return render('/manage/users/user.mako')
-      else:
+          c.user = user[1]
+          c.otherUser = {}
+          c.otherUser["id"] = ROtherUser.id
+          c.otherUser["name"] = ROtherUser.name
+          c.otherUser["steamid"] = ROtherUser.steamID
+          c.otherUser["botID"] = ROtherUser.bot
+          c.otherUser["permissions"] = ROtherUser.Permissions[0]
+
+          c.current = "manage"
+          c.managePage = "users"
+
+          RBots = db.Session.query(db.Bots).order_by(db.Bots.id).all()
+          c.bots = []
+          for RBot in RBots:
+            bot = {}
+            bot["id"] = RBot.id
+            bot["name"] = RBot.name
+            c.bots.append(bot)
+
+          if request.POST:
+            db.Session.commit()
+
+          return render('/manage/users/user.mako')
+        else:
+          return redirect("/manage/users/")
+      else: 
         return redirect("/")
     else: 
       return redirect("/")

@@ -15,14 +15,14 @@ def User():
       user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + RUser.avatar + "_full.jpg"
       user["items"] = RUser.Items[0]
       user["permissions"] = RUser.Permissions[0]
+      user["botID"] = RUser.bot
     else:
       url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (config["steamapi"], user["steamid"])
-      data = requests.get(url).text
-      player = json.loads(data)[u"response"][u"players"][0]
-      user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + player[u"avatarfull"][67:-9] + "_full.jpg"
-      user["name"] = player[u"personaname"]
-      botID = randrange(1, db.Session.query(func.count(db.Bots)).scalar())
-      RUser = db.Users(name = user["name"], avatar = player[u"avatarfull"][67:-9], steamID = user["steamid"], bot = botID)
+      data = json.loads(requests.get(url).text)[u"response"][u"players"][0]
+      user["avatar"] = "http://media.steampowered.com/steamcommunity/public/images/avatars/" + data[u"avatarfull"][67:-9] + "_full.jpg"
+      user["name"] = data[u"personaname"]
+      user["botID"] = randrange(1, db.Session.query(func.count(db.Bots)).scalar())
+      RUser = db.Users(name = user["name"], avatar = data[u"avatarfull"][67:-9], steamID = user["steamID"], bot = user["botID"])
       db.Session.add(RUser)
       db.Session.commit()
       user["id"] = RUser.id
