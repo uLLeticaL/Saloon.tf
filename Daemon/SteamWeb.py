@@ -337,11 +337,11 @@ class Bot(object):
         }
         response = self.Bot.API("IEconService/DeclineTradeOffer/v1", parameters)
         if response:
-          return True
           self.Bot.Log("Declined #" + str(self.offerID) + " offer.")
+          return True
         else:
-          return False
           self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer. " + str(error.code) + " ERROR.")
+          return False
 
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
