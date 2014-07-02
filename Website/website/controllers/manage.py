@@ -480,3 +480,37 @@ class ManageController(BaseController):
         return redirect("/")
     else:
       return redirect("/")
+
+  def user(self, userID):
+    user = User()
+    if user:
+      RUser = user[0]
+      if RUser.Permissions[0].users:
+        PUser = db.Session.query(db.Users).filter(db.Users.id == userID).first()
+        if request.POST:
+          PUser.name = request.POST["name"]
+	  PUser.avatar = request.POST["avatar"]
+	  PUser.steamID = request.POST["steamid"]
+	  PUser.bot = request.POST["bot"]
+	  db.Session.commit()
+	  # Need to reload the PUser object as its variables seem to disappear after commit()ing
+	  PUser = db.Session.query(db.Users).filter(db.Users.id == userID).first()
+        
+	c.user = user[1]
+	c.PUser =   PUser.__dict__
+        c.current = "manage"
+        c.managePage = "users"
+
+        RBots = db.Session.query(db.Bots).order_by(db.Bots.id).all()
+        c.bots = []
+        for RBot in RBots:
+          bot = {}
+          bot["id"] = RBot.id
+          bot["name"] = RBot.name
+          c.bots.append(bot)
+
+        return render('/manage/users/user.mako')
+      else:
+        return redirect("/")
+    else: 
+      return redirect("/")
