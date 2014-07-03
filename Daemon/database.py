@@ -42,6 +42,7 @@ class UsersPermissions(Base):
   users = Column(Boolean)
   bets = Column(Boolean)
   bots = Column(Boolean)
+  permissions = Column(Boolean)
 
 class Matches(Base):
   __tablename__ = 'matches'
