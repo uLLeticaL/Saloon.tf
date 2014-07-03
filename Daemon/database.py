@@ -1,4 +1,3 @@
-import settings
 from sqlalchemy import Table, MetaData, Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import mapper, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
@@ -80,8 +79,6 @@ class BetsTotal(Base):
   id = Column(Integer, primary_key=True)
   match = Column(Integer)
   team = Column(Integer)
-  buds = Column(String)
-  bills = Column(Integer)
   keys = Column(Integer)
   metal = Column(Integer)
 
