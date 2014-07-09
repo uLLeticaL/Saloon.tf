@@ -15,7 +15,7 @@ openConnection = (type) ->
       </p>
     "
     json = JSON.stringify([
-      "hello"
+      "helloOld"
       type
       steamID
     ])
@@ -30,7 +30,7 @@ openConnection = (type) ->
     array = JSON.parse(event.data)
     console.log array
 
-    if array[0] is "hello"
+    if array[0] is "helloOld"
       botArray = array.slice(0)
       $(".authentication-status").html "<i class=\"fa fa-check\"></i> Authenticated"
       if type is "deposit"

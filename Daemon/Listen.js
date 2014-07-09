@@ -65,14 +65,9 @@ function Bot(data, authCode) {
     bot.on('servers', function(servers) {
       fs.writeFile('servers', JSON.stringify(servers));
     });
-    var offers = 0
-    bot.on('tradeOffers', function(number) {
-      if (number > offers) {
-        Log(data.name, "Got a trade offer");
-        ws.send('["tradeOffers",' + data.id + ']')
-      }
-      offers = number;
-    }); 
+    bot.on('friend', function(steamID, relationship) {
+      ws.send('["friend", "' + steamID + '", ' + relationship + ']')
+    });
   }
   else {
     var domain = require('domain').create();

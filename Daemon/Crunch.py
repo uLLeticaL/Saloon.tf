@@ -6,8 +6,17 @@ import colorama as color
 import threading
 import SteamWeb
 
+from mechanize import Browser, HTTPError, URLError
+
+from sqlalchemy import and_
+
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
                                        WebSocketServerFactory
+
+from twisted.internet import reactor
+
+from twisted.internet.threads import deferToThread
+deferred = deferToThread.__get__
 
 from twisted.python import log
 log.startLogging(sys.stdout)
@@ -16,7 +25,7 @@ RBots = db.Session.query(db.Bots).all()
 RItems = db.Session.query(db.Items).all()
 items = {}
 for RItem in RItems:
-  classID = str(RItem.classID)
+  classID = RItem.classID
   items[classID] = RItem
 
 class Handler(object):
@@ -82,177 +91,106 @@ class Handler(object):
       captchaCode = raw_input(color.Fore.BLUE + color.Style.BRIGHT + "[" + self.Bot.name + "] " + color.Fore.RESET + color.Style.RESET_ALL + "Captcha: ")
       return captchaCode
 
-  def Trades(self):
-    return self.OTrades(self)
+  def Bet(self, steamID, userID, matchID, teamID, items):
+    return self.OBet(self, steamID, userID, matchID, teamID, items)
 
-  class OTrades(object):
-    def __init__(self, Handler):
-      self.Meta = Handler.Meta
+  class OBet(object):
+    def __init__(self, Handler, steamID, userID, matchID, teamID, items):
       self.Bot = Handler.Bot
       self.Communicate = Handler.Communicate
-      partners = {}
-      self.Bot.Log("Trying to get offer information")
-      # This one tends to timeout pretty often
-      offers = self.Bot.Trade().GetOffers()
-      self.Bot.Log("Got offer information")
-      if offers is not False:
-        if len(offers) > 0:
-          accepted = False
-          # Rework the dictionary to partner => offers format and
-          for offerID in offers:
-            offer = offers[offerID]
-            steamID = offer.Partner.steamID
-            if int(steamID) in Handler.Communicate.listeners:
-              if steamID in partners:
-                partners[steamID].append(offer)
+      self.Partner = self.Bot.Community().Friend(steamID)
+      self.steamID = steamID
+      self.userID = userID
+      self.matchID = matchID
+      self.teamID = teamID
+      self.items = items
+      self.timeouted = False
+
+      self.RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+      self.RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == userID, db.Bets.match == matchID)).first()
+      if not self.RBet or (self.RBet and self.RBet.team == teamID):
+        Communicate.send(["bet", "processing"], steamID)
+
+        self.Partner.token = self.RUser.token
+        itemsToReceive = []
+        for assetID in self.items:
+          itemsToReceive.append({
+            "appid": 440,
+            "contextid": 2,
+            "amount": 1,
+            "assetid": str(assetID)
+          })
+
+        self.offerID = self.Bot.Trade().MakeOffer(self.Partner, [], itemsToReceive, "Thanks for betting with Saloon.tf!")
+        if self.offerID:
+          self.Communicate.send(["tradeOffer", self.offerID], self.steamID)
+          self.monitorOffer(self)
+        else:
+          self.Communicate.send(["tradeOffer", False], self.steamID)
+      else:
+        Communicate.send(["bet", "error"], steamID)
+
+    @deferred
+    def monitorOffer(self):
+      r = threading.Timer(120.0, self.timeout)
+      r.start()
+      while not self.timeouted:
+        offer = self.Bot.Trade().Offer(self.offerID, self.Partner)
+        if offer.state == 3:
+          correctItems = {u"metal": 0}
+          for item in offer.itemsToReceive:
+            if item["classid"] in items:
+              RItem = items[item["classid"]]
+              if RItem.metal:
+                correctItems[u"metal"] += RItem.value * item["amount"]
               else:
-                partners[steamID] = [offer]
-            else:
-              offer.decline()
-
-          # Begin processing trades if they meet requirements (online)
-          if len(partners) > 0:
-            steamIDs = partners.keys()
-            db.Session.commit()
-            RUsers = db.Session.query(db.Users).filter(db.Users.steamID.in_(steamIDs)).all()
-            for RUser in RUsers:
-              for offer in partners[str(RUser.steamID)]:
-                status = 0
-                # Call offer handlers depending on the type of offer
-                if self.offerType(offer) is "Deposit":
-                  status = self.deposit(offer, RUser)
-                elif self.offerType(offer) is "Withdrawal":
-                  if RUser.steamID not in Handler.queue:
-                    self.Bot.Log("User #" + RUser.steamID + " is not in the queue and his offer (" + str(offer.offerID) + ") will be declined.")
-                    status = 3
-                  else:
-                    status = self.withdraw(offer, RUser)
+                if RItem.name in correctItems:
+                  correctItems[RItem.name] += item["amount"]
                 else:
-                  offer.decline()
-                  status = 2
-                # Send error messages to the users
-                if status == 0:
-                  self.Communicate.send(["error"], RUser.steamID)
-                elif status == 1:
-                  accepted = True
-                  self.Bot.Log("Accepted trade #" + str(offer.offerID) + " from " + RUser.name + ".")
-                  self.Communicate.send(["accepted"], RUser.steamID)
-                  self.Communicate.close(steamID)
-                elif status == 2:
-                  self.Communicate.send(["declined"], RUser.steamID)
-              del partners[str(RUser.steamID)]
-
-            # Decline offers made by not registered users
-            for steamID in partners:
-              self.Bot.Log("User with SteamID: " + str(steamID) + " isn't registered yet. Declining his offers.")
-              for offer in partners[steamID]:
-                offer.decline()
-            # Commit session if any trade was accepted
-            if accepted:
-              db.Session.commit()
-
-    def offerType(self, offer):
-      if offer.itemsToReceive and not offer.itemsToGive:
-        return "Deposit"
-      elif offer.itemsToGive and not offer.itemsToReceive:
-        return "Withdrawal"
-      else:
-        return False
-
-    def deposit(self, offer, RUser):
-      metal = 0
-      correctItems = []
-      for item in offer.itemsToReceive:
-        if item[1] in items:
-          RItem = items[item[1]]
-          if RItem.metal:
-            metal += (RItem.value * item[0])
-          else:
-            RUserItem = getattr(RUser.Items[0], RItem.name)
-            correctItems.append([RItem.name, item[0]])
-        else:
-          offer.decline()
-          return 2
-      if offer.accept():
-        correctItems.append(['metal', metal])
-        for item in correctItems:
-          itemValue = getattr(RUser.Items[0], item[0])
-          itemValue += item[1]
-          setattr(RUser.Items[0], item[0], itemValue)
-        return 1
-      return 0
-
-    def withdraw(self, offer, RUser):
-      metal = 0
-      correctItems = []
-      for item in offer.itemsToGive:
-        if item[1] in items:
-          RItem = items[item[1]]
-          if RItem.metal:
-            metal += (RItem.value * item[0])
-          else:
-            RUserItem = getattr(RUser.Items[0], RItem.name)
-            if RUserItem >= item[0]:
-              correctItems.append([RItem.name, item[0]])
+                  correctItems[RItem.name] = item["amount"]
             else:
               offer.decline()
-              return 2
-        else:
-          offer.decline()
-          return 2
+              self.Communicate.send(["accepted", False], self.steamID)
+              return False
 
-      if RUser.Items[0].metal < metal:
-        offer.decline()
-        return 2
-      if offer.accept():
-        correctItems.append(['metal', metal])
-        for item in correctItems:
-          itemValue = getattr(RUser.Items[0], item[0])
-          itemValue -= item[1]
-          setattr(RUser.Items[0], item[0], itemValue)
-        return 1
-      return 0
+          if self.RBet:
+            for item in correctItems:
+              setattr(self.RBet, item, getattr(self.RBet, item) + correctItems[item])
+          else:
+            RBetDict = dict(correctItems.items() + [("user", self.userID), ("match", self.matchID), ("team", self.teamID)])
+            RBet = db.Bets(**RBetDict)
+            db.Session.add(RBet)
 
-  def Queue(self):
-    return self.OQueue(self)
+          RBetsTotal = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == self.matchID, db.BetsTotal.team == self.teamID)).first()
+          for item in correctItems:
+            setattr(RBetsTotal, item, getattr(RBetsTotal, item) + correctItems[item])
+          db.Session.commit()
 
-  class OQueue(object):
-    def __init__(self, Handler):
-      self.Meta = Handler.Meta
-      self.Bot = Handler.Bot
-      self.Communicate = Handler.Communicate
-      self.queue = Handler.queue
-      self.current = Handler.current
+          Browser().open("http://saloon.tf/api/refreshsession")
+          self.Communicate.send(["accepted", True], self.steamID)
+          return True
+        elif offer.state == 4 or offer.state == 7:
+          self.Communicate.send(["accepted", False], self.steamID)
+          return False
+        time.sleep(1)
 
-    def add(self, steamID):
-      self.queue.append(steamID)
-      if len(self.queue) == 1:
-        array = ["hello",self.Bot.id]
-        r = threading.Timer(60.0, self.timeout, [steamID])
-        r.start()
-      else:
-        array = ["queue", "position", len(self.queue) - 1]
-      self.Communicate.send(array, steamID)
+    def timeout(self):
+      self.timeouted = True
+      self.Communicate.close(self.steamID)
 
-    def timeout(self, steamID):
-      self.Communicate.close(steamID)
-
-    def remove(self, steamID):
-      if steamID in self.queue:
-        print 1
-        self.queue.remove(steamID)
-      self.update()
-
-    def update(self):
-      for position, steamID in enumerate(self.queue):
-        if position == 0:
-          if self.current["withdraw"] != steamID:
-            self.current["withdraw"] = steamID
-            self.Communicate.send(["hello", self.Bot.id], steamID)
-            r = threading.Timer(60.0, self.timeout, [steamID])
-            r.start()
-        else:
-          self.Communicate.send(["queue", "position", position], steamID)
+  def GetInventory(self, steamID):
+    Partner = self.Bot.Community().Friend(steamID)
+    RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+    Partner.token = RUser.token
+    inventory = Partner.inventory()
+    if inventory[0]:
+      response = {}
+      for classID in inventory[1]:
+        RItem = db.Session.query(db.Items).filter(db.Items.classID == classID).first()
+        if RItem:
+          response[RItem.name] = inventory[1][classID][3]
+      return response
+    return False
 
 class OCommunicate(object):
   def __init__(self):
@@ -260,23 +198,35 @@ class OCommunicate(object):
     self.listenjs = False
   def send(self, array, steamID):
     if steamID in self.listeners:
+      print self.listeners[steamID]
       self.listeners[steamID].sendMessage(json.dumps(array))
+      return json.dumps(array)
+
   def sendListenjs(self, array):
     if self.listenjs:
       self.listenjs.sendMessage(json.dumps(array))
+
   def add(self, user, steamID):
     self.listeners[steamID] = user
+
   def close(self, steamID):
     if steamID in self.listeners:
       self.listeners[steamID].sendClose()
+
   def remove(self, user):
-    for steamID, listener in self.listeners.items():
-      if listener == user:
-        RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
-        Handlers[RUser.bot].Queue().remove(steamID)
-        del self.listeners[steamID]
+    steamID = self.getSteamID(user)
+    if steamID:
+      RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+      del self.listeners[steamID]
+
   def log(self, handler, name, message):
     print color.Fore.YELLOW + color.Style.BRIGHT + "[" + handler + "] " + color.Fore.GREEN + "[" + name + "] " + color.Fore.RESET + color.Style.RESET_ALL + message
+
+  def getSteamID(self, user):
+    for steamID, listener in self.listeners.items():
+      if listener == user:
+        return steamID
+    return False
 
 Communicate = OCommunicate()
 Handlers = {}
@@ -305,20 +255,38 @@ class BotServerProtocol(WebSocketServerProtocol):
     if not isBinary:
       message = payload.decode('utf8')
       message = json.loads(message)
+      print message
       if message[0] == u"hello":
-        steamID = int(message[2])
+        steamID = int(message[1])
         RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
         if RUser:
+          Handler = Handlers[RUser.bot]
           Communicate.add(self, steamID)
-          if message[1] == u"withdraw":
-            Handlers[RUser.bot].Queue().add(steamID)
+          if RUser.token:
+            Communicate.send(["inventory", Handler.GetInventory(steamID)], steamID)
           else:
-            Communicate.send(["hello", RUser.bot], steamID)
+            Communicate.send(["tradeLink", "new"], steamID)
+      elif message[0] == u"tradeLink":
+        steamID = Communicate.getSteamID(self)
+        match = re.match(u"http:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=[0-9]+&token=([a-zA-Z0-9]+)", message[1])
+        if match:
+          RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+          RUser.token = match.group(1)
+          db.Session.commit()
+          Handler = Handlers[RUser.bot]
+          Communicate.send(["inventory", Handler.GetInventory(steamID)], steamID)
+        else:
+          Communicate.send(["tradeLink", "wrong"], steamID)
+      elif message[0] == u"bet":
+        steamID = Communicate.getSteamID(self)
+        if steamID:
+          RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+          if RUser:
+            Handler = Handlers[RUser.bot]
+            Handler.Bet(steamID, RUser.id, message[1], message[2], message[3])
       if "127.0.0.1" in self.peer:
         if message[0] == u"log":
           Communicate.log("Listen.js", message[1], message[2])
-        elif message[0] == u"tradeOffers":
-          Handlers[message[1]].Trades()
         elif message[0] == u"guardCode":
           Handler = Handlers[message[1]]
           data = {
@@ -333,8 +301,6 @@ class BotServerProtocol(WebSocketServerProtocol):
   def onClose(self, wasClean, code, reason):
     print("WebSocket connection closed: {0}".format(reason))
     Communicate.remove(self)
-
-from twisted.internet import reactor
 
 factory = WebSocketServerFactory("ws://localhost:9000", debug = False)
 factory.protocol = BotServerProtocol

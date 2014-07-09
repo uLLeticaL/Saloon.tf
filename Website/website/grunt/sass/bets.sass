@@ -61,3 +61,37 @@ body
             float: right
             @media screen and (max-width: $screen-xs-max)
               float: left
+  .carousel-inventory-wrapper
+    .carousel-inventory-control.carousel-control
+      width: 63px
+      .icon-next, .fa-chevron-right
+        margin-right: -15px
+        margin-left: 0px
+      .icon-prev, .fa-chevron-left
+        margin-left: -15px
+        margin-right: 0px
+    #carousel-inventory
+      .carousel-inner
+        .item
+          .inventory-wrapper
+            height: 354px
+            min-height: 354px
+            position: relative
+            .inventory
+              @extend .clearfix
+              position: absolute
+              left: 50%
+              width: 472px
+              margin-left: -236px
+  .btn-bet-wrapper
+    height: 41px
+    min-height: 41px
+    position: relative
+    width: 100%
+    min-width: 100%
+    .btn-bet
+      position: absolute
+      left: 50%
+      width: 472px
+      margin-top: 5px
+      margin-left: -236px

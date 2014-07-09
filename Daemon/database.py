@@ -24,14 +24,8 @@ class Users(Base):
   avatar = Column(String)
   steamID = Column(Integer)
   bot = Column(Integer)
-  Items = relationship("UsersItems")
+  token = Column(String)
   Permissions = relationship("UsersPermissions")
-
-class UsersItems(Base):
-  __tablename__ = 'usersItems'
-  user = Column(Integer, ForeignKey('users.id'), primary_key=True)
-  keys = Column(Integer)
-  metal = Column(Integer)
 
 class UsersPermissions(Base):
   __tablename__ = 'usersPermissions'
@@ -80,8 +74,17 @@ class BetsTotal(Base):
   id = Column(Integer, primary_key=True)
   match = Column(Integer)
   team = Column(Integer)
-  keys = Column(Integer)
-  metal = Column(Integer)
+  keys = Column(Integer, default=0)
+  metal = Column(Integer, default=0)
+
+class Bets(Base):
+  __tablename__ = "bets"
+  id = Column(Integer, primary_key=True)
+  user = Column(Integer)
+  match = Column(Integer)
+  team = Column(Integer)
+  keys = Column(Integer, default=0)
+  metal = Column(Integer, default=0)
 
 class Items(Base):
   __tablename__ = "items"
@@ -89,7 +92,7 @@ class Items(Base):
   name = Column(String)
   metal = Column(Boolean)
   defindex = Column(Integer)
-  assetID = Column(Integer)
+  instanceID = Column(Integer)
   classID = Column(Integer)
   value = Column(Integer)
 
@@ -99,7 +102,7 @@ class Countries(Base):
   name = Column(String)
 
 from sqlalchemy import create_engine
-engine = create_engine("postgresql://username:password@localhost:5432/Saloon.tf", echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
+engine = create_engine("postgresql://user:password@localhost:5432/Saloon.tf", echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
 
 Base.metadata.bind = engine
 

@@ -123,65 +123,68 @@ class Bot(object):
     def __init__(self, bot):
       self.Bot = bot
 
-    def GetFriends(self, steamID = False, prefetch = False):
-      if steamID:
-        return self.Friend(steamID, self.Bot)
-      else:
-        parameters = {'relationship': 'friend', 'steamid': self.Bot.steam["id"]}
-        response = self.Bot.API("ISteamUser/GetFriendList/v0001", parameters)
-        friends = []
+    def GetFriends(self, prefetch = False):
+      parameters = {'relationship': 'friend', 'steamid': self.Bot.steam["id"]}
+      response = self.Bot.API("ISteamUser/GetFriendList/v0001", parameters)
+      friends = []
+      if prefetch:
+        steamIDs = []
+        blocks = []
+        count = 0
+      for friend in response[u"friendslist"][u"friends"]:
+        steamID = friend[u"steamid"].encode('ascii', 'ignore')
+        friends.append(self.Friend(steamID, prefetch))
         if prefetch:
-          steamIDs = []
-          blocks = []
-          count = 0
-        for friend in response[u"friendslist"][u"friends"]:
-          steamID = friend[u"steamid"].encode('ascii', 'ignore')
-          friends.append(self.Friend(steamID, self.Bot))
-          if prefetch:
-            steamIDs.append(steamID)
+          steamIDs.append(steamID)
+          count += 1
+          if count == 100:
+            blocks.append(",".join(steamIDs))
+            steamIDs = []
+            count = 0
+      if prefetch:
+        blocks.append(",".join(steamIDs))
+        count = 0
+        for block in blocks:
+          parameters = {'relationship': 'friend', 'steamids': block}
+          response = self.Bot.API("ISteamUser/GetPlayerSummaries/v0002", parameters)
+          response = response[u"response"][u"players"]
+          if count + 100 > len(friends):
+            r = range(0, len(friends) % 100)
+          else:
+            r = range(0,100)
+          for i in r:
+            friends[count].name = response[i][u"personaname"]
+            friends[count].state = response[i][u"personastate"]
+            friends[count].avatar = response[i][u"avatarfull"]
+            friends[count].public = True if response[i][u"communityvisibilitystate"] is 3 else False
             count += 1
-            if count == 100:
-              blocks.append(",".join(steamIDs))
-              steamIDs = []
-              count = 0
-        if prefetch:
-          blocks.append(",".join(steamIDs))
-          count = 0
-          for block in blocks:
-            parameters = {'relationship': 'friend', 'steamids': block}
-            response = self.Bot.API("ISteamUser/GetPlayerSummaries/v0002", parameters)
-            response = response[u"response"][u"players"]
-            if count + 100 > len(friends):
-              r = range(0, len(friends) % 100)
-            else:
-              r = range(0,100)
-            for i in r:
-              friends[count].name = response[i][u"personaname"]
-              friends[count].state = response[i][u"personastate"]
-              friends[count].avatar = response[i][u"avatarfull"]
-              friends[count].public = True if response[i][u"communityvisibilitystate"] is 3 else False
-              friends[count].loaded = True
-              count += 1
-        return friends
+      return friends
 
-    class Friend:
-      def __init__(self, steamID, bot):
+    def Friend(self, steamID, prefetch = False):
+      return self.OFriend(self.Bot, steamID, prefetch)
+
+    class OFriend:
+      def __init__(self, bot, steamID, prefetch):
         self.steamID = steamID
-        self.loaded = False
+        self.SID = SID(communityID = steamID)
         self.Bot = bot
+        self.token = False
+        if not prefetch:
+          self.summary()
 
       def add(self):
         parameters = {
-          'steamid': self.steamID,
+          'steamid': str(self.steamID),
           'accept_invite': 0
         }
         response = self.Bot.Ajax('AddFriendAjax', parameters)
         if response:
+          print response
+          self.Bot.Log("Sent friend request to " + str(self.steamID))
           return True
-          self.Bot.Log("Sent friend request to " + self.steamID)
         else:
+          self.Bot.Log("Couldn't add " + str(self.steamID) + " to the friends list.")
           return False
-          self.Bot.Log("Couldn't add " + self.steamID + " to the friends list.")
 
       def accept(self):
         parameters = {
@@ -190,10 +193,10 @@ class Bot(object):
         }
         response = self.Bot.Ajax('AddFriendAjax', parameters)
         if response:
-          self.Bot.Log("Accepted friend request from " + self.steamID)
+          self.Bot.Log("Accepted friend request from " + str(self.steamID))
           return True
         else:
-          self.Bot.Log("Couldn't add " + self.steamID + " to the friends list.")
+          self.Bot.Log("Couldn't add " + str(self.steamID) + " to the friends list.")
           return False
 
       def remove(self):
@@ -202,52 +205,122 @@ class Bot(object):
         }
         response = self.Bot.Ajax('RemoveFriendAjax', parameters)
         if response:
-          self.Bot.Log("Removed " + self.steamID + " from the friends list.")
+          self.Bot.Log("Removed " + str(self.steamID) + " from the friends list.")
           return True
         else:
-          self.Bot.Log("Couldn't remove " + self.steamID + " from the friends list.")
+          self.Bot.Log("Couldn't remove " + str(self.steamID) + " from the friends list.")
           return False
 
-      def summary(self):
-        if self.loaded is False:
-          parameters = {'steamids': self.steamID}
-          response = self.Bot.API("ISteamUser/GetPlayerSummaries/v0002", parameters)
-          if len(response[u"response"][u"players"]) is 1:
-            player = response[u"response"][u"players"][0]
-            self.name = player[u"personaname"]
-            self.state = player[u"personastate"]
-            self.avatar = player[u"avatarfull"]
-            self.public = True if player[u"communityvisibilitystate"] is 3 else False
-            self.loaded = True
-        return {
-          'name': self.name,
-          'state': self.state,
-          'avatar': self.avatar,
-          'public': self.public
+      def inventory(self, appID = 440, contextID = 2):
+        parameters = {"partner": str(self.SID.toAccount())}
+        if self.token:
+          parameters["token"] = self.token
+        data = urllib.urlencode(parameters)
+        self.Bot.browser.addheaders = [('Referer', "https://steamcommunity.com/tradeoffer/new/?" + data)]
+
+        parameters = {
+          'partner': str(self.steamID).encode("utf-8"),
+          'appid': str(appID).encode("utf-8"),
+          'contextid': str(contextID).encode("utf-8"),
+          'sessionid': self.Bot.sessionid.encode("utf-8")
         }
+        data = urllib.urlencode(parameters)
+        for i in range(0,3):
+          try:
+            response = self.Bot.browser.open("http://steamcommunity.com/tradeoffer/new/partnerinventory/?" + data, timeout = 5.0)
+          except (HTTPError, URLError) as error:
+            continue
+          response = json.loads(response.read())
+          if response[u"success"]:
+            if response[u"rgInventory"]:
+              inventory = {}
+              for id in response[u"rgInventory"]:
+                classid = int(response[u"rgInventory"][id][u"classid"])
+                instanceid = int(response[u"rgInventory"][id][u"instanceid"])
+                if classid in inventory:
+                  inventory[classid][0] += 1
+                  inventory[classid][3].append(id)
+                else:
+                  inventory[classid] = [0, classid, instanceid, [id]]
+              return [True, inventory]
+            else:
+              return [False, "private"]
+          else:
+            return [False, "error"]
+        self.Bot.Log("Couldn't load inventory.")
+        return [False, "error"]
+
+      def summary(self):
+        parameters = {'steamids': self.steamID}
+        response = self.Bot.API("ISteamUser/GetPlayerSummaries/v0002", parameters)
+        response = response[u"response"][u"players"][0]
+        self.name = response[u"personaname"]
+        self.state = response[u"personastate"]
+        self.avatar = response[u"avatarfull"]
+        self.public = True if response[u"communityvisibilitystate"] is 3 else False
 
   class OTrade(object):
     def __init__(self, bot):
-      self.Bot = bot
-      self.offersCache = {}
+      self.Bot = bot   
 
-    def MakeOffer(self, Partner, scraps = 0, keys = 0):
+    def MakeOffer(self, Partner, itemsToGive, itemsToReceive, message):
+      createParams = {}
+      parameters = {"partner": str(Partner.SID.toAccount())}
+      if Partner.token:
+        parameters["token"] = Partner.token
+        createParams["trade_offer_access_token"] = Partner.token
+      data = urllib.urlencode(parameters)
+      self.Bot.browser.addheaders = [('Referer', "https://steamcommunity.com/tradeoffer/new/?" + data)]
+
+      offerParams = {
+        "newversion": True,
+        "version": 4,
+        "me": {
+          "assets": itemsToGive,
+          "currency": [],
+          "ready": False
+        },
+        "them": {
+          "assets": itemsToReceive,
+          "currency": [],
+          "ready": False
+        }
+      }
+
+      parameters = {
+        'partner': str(Partner.steamID).encode("utf-8"),
+        'sessionid': self.Bot.sessionid.encode("utf-8"),
+        'tradeoffermessage': message,
+        'json_tradeoffer': json.dumps(offerParams),
+        'trade_offer_create_params': json.dumps(createParams)
+      }
+      data = urllib.urlencode(parameters)
+      print data
+      for i in range(0,3):
+        try:
+          response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/new/send", data, timeout = 5.0)
+          response = json.loads(response.read())
+          return int(response["tradeofferid"])
+        except (HTTPError, URLError) as error:
+          print error
+          continue
+      self.Bot.Log("Couldn't send tradeoffer.")
       return False
 
-    def GetOffers(self, offerType = "received", offerState = 2, ID = False):
-      if ID:
-        parameters = {'tradeofferid': str(ID)}
-        response = self.Bot.API("IEconService/GetTradeOffer/v0001", parameters)
-        response = respsonse[u"response"]
+    def GetOffer(self, offerID):
+      parameters = {'tradeofferid': str(offerID)}
+      response = self.Bot.API("IEconService/GetTradeOffer/v0001", parameters)
+      print response
+
+    def GetOffers(self, offerType = "received", offerState = 2, active = True):
+      parameters = {
+        'active_only': int(active),
+        'time_historical_cutoff': int(time.time())
+      }
+      if offerType == "sent":
+        parameters["get_sent_offers"] = 1
       else:
-        parameters = {
-          'active_only': 1,
-          'time_historical_cutoff': int(time.time())
-        }
-        if offerType == "sent":
-          parameters["get_sent_offers"] = 1
-        else:
-          parameters["get_received_offers"] = 1
+        parameters["get_received_offers"] = 1
 
       offersList = []
       response = self.Bot.API("IEconService/GetTradeOffers/v0001", parameters)
@@ -268,50 +341,42 @@ class Bot(object):
         for offer in offersList:
           offerID = int(offer[u"tradeofferid"])
           if offer[u"trade_offer_state"] == offerState:
-            if offerID in self.offersCache:
-              offers[offerID] = self.offersCache[offerID]
-            else:
-              accountID = offer[u"accountid_other"]
-              partnerID = "STEAM_0:%d:%d" % (accountID & 1, accountID >> 1)
-              partnerID = SID(partnerID).toCommunity()
-              Partner = self.Bot.Community().GetFriends(steamID = str(partnerID))
+            steamID = SID(accountID = offer[u"accountid_other"]).toCommunity()
+            Partner = self.Bot.Community().Friend(steamID)
 
-              itemsToGive = []
-              if u"items_to_give" in offer:
-                broken = False
-                for item in offer[u"items_to_give"]:
-                  classID = item[u"classid"].encode('ascii', 'ignore')
-                  amount = int(item[u"amount"])
-                  itemsToGive.append([amount, classID])
+            itemsToGive = []
+            if u"items_to_give" in offer:
+              broken = False
+              for item in offer[u"items_to_give"]:
+                classID = item[u"classid"].encode('ascii', 'ignore')
+                amount = int(item[u"amount"])
+                itemsToGive.append([amount, classID])
 
-              itemsToReceive = []
-              if u"items_to_receive" in offer:
-                broken = False
-                for item in offer[u"items_to_receive"]:
-                  classID = item[u"classid"].encode('ascii', 'ignore')
-                  amount = int(item[u"amount"])
-                  itemsToReceive.append([amount, classID])
+            itemsToReceive = []
+            if u"items_to_receive" in offer:
+              broken = False
+              for item in offer[u"items_to_receive"]:
+                classID = item[u"classid"].encode('ascii', 'ignore')
+                amount = int(item[u"amount"])
+                itemsToReceive.append([amount, classID])
 
-              offer = self.Offer(offerID, self.Bot, Partner = Partner)
-              offer.itemsToGive = itemsToGive
-              offer.itemsToReceive = itemsToReceive
-              offers[offerID] = offer
-
-        if ID and ID not in offersCache:
-          self.offersCache[ID] = offers[ID]
-        else:
-          self.offersCache = offers
+            offer = self.Offer(offerID, Partner)
+            offer.itemsToGive = itemsToGive
+            offer.itemsToReceive = itemsToReceive
+            offers[offerID] = offer
         return offers
       else:
         return False
 
-    class Offer:
-      def __init__(self, offerID, bot, Partner = False):
+    def Offer(self, offerID, Partner = False):
+      return self.OOffer(self.Bot, offerID, Partner)
+
+    class OOffer:
+      def __init__(self, bot, offerID, Partner = False):
         self.offerID = offerID
         self.Partner = Partner
         self.Bot = bot
-        self.itemsToGive = []
-        self.itemsToReceive = []
+        self.summary()
 
       def accept(self):
         self.Bot.browser.addheaders = [('Referer', "https://steamcommunity.com/tradeoffer/" + str(self.offerID))]
@@ -343,6 +408,36 @@ class Bot(object):
           self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer.")
           return False
 
+      def summary(self):
+        parameters = {'tradeofferid': str(self.offerID)}
+        response = self.Bot.API("IEconService/GetTradeOffer/v0001", parameters)
+        if response:
+          response = response[u"response"]
+          offer = response[u"offer"]
+          self.state = offer[u"trade_offer_state"]
+          self.message = offer[u"message"]
+          self.expirationTime = offer[u"expiration_time"]
+          self.itemsToReceive = []
+          if u"items_to_receive" in offer:
+            for item in offer[u"items_to_receive"]:
+              self.itemsToReceive.append({
+                "appid": int(item[u"appid"]),
+                "contextid": int(item[u"contextid"]),
+                "amount": int(item[u"amount"]),
+                "assetid": int(item[u"assetid"]),
+                "classid": int(item[u"classid"])
+              })
+          self.itemsToGive = []
+          if u"items_to_give" in offer:
+            for item in offer[u"items_to_give"]:
+              self.itemsToGive.append({
+                "appid": int(item[u"appid"]),
+                "contextid": int(item[u"contextid"]),
+                "amount": int(item[u"amount"]),
+                "assetid": int(item[u"assetid"]),
+                "classid": int(item[u"classid"])
+              })
+
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
@@ -368,25 +463,35 @@ class Bot(object):
     return False
 
 class SID:
-  def __init__(self, steamID):
+  def __init__(self, steamID = False, communityID = False, accountID = False):
     self.steamIDBase = 76561197960265728
-    self.steamID = steamID
+    if steamID:
+      self.steamID = steamID
+    elif communityID:
+      account = []
+      account.append("STEAM_0:")
+      accountLastPart = int(communityID) - self.steamIDBase
+      if accountLastPart % 2 == 0:
+        account.append("0:")
+      else:
+        account.append("1:")
+      account.append(str(accountLastPart // 2))
+      self.steamID = "".join(account)
+    elif accountID:
+      self.steamID = "STEAM_0:%d:%d" % (accountID & 1, accountID >> 1)
 
   def toCommunity(self):
-    steamIDParts = re.split(":", self.steamID)
-    community = int(steamIDParts[2]) * 2
+    steamIDParts = self.steamID.split(":")
+    communityID = int(steamIDParts[2]) * 2
     if steamIDParts[1] == "1":
-      community += 1
-    community += self.steamIDBase
-    return community
+      communityID += 1
+    communityID += self.steamIDBase
+    return communityID
 
   def toSteam(self):
-    account = []
-    account.append("STEAM_0:")
-    accountLastPart = self.steamID - steamIDBase
-    if steamIDLastPart % 2 == 0:
-      account.append("0:")
-    else:
-      account.append("1:")
-    account.append(str(accountLastPart // 2))
-    return "".join(account)
+    return steamID
+
+  def toAccount(self):
+    steamIDParts = self.steamID.split(":")
+    accountID = int(steamIDParts[2]) << 1
+    return accountID

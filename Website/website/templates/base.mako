@@ -9,7 +9,7 @@
       %endif
     </script>
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.35" />
+    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.140" />
   </head>
   <body class="${c.current}">
     <header>
@@ -29,7 +29,6 @@
           <ul class="nav navbar-nav">
             <li class="${'active' if c.current == "home" else ''}"><a href="/home/">Home</a></li>
             %if c.user:
-              <li class="${'active' if c.current == "inventory" else ''}"><a href="/inventory/">Inventory</a></li>
               %if c.user["permissions"].manage:
                 <li class="${'active' if c.current == "manage" else ''}"><a href="/manage/">Manage</a></li>
               %endif
@@ -46,6 +45,6 @@
       </div><!-- /.container-fluid -->
     </nav>
     ${self.body()}
-    <script type="text/javascript" src="/javascript.js?v=0.2.35" /></script>
+    <script type="text/javascript" src="/javascript.js?v=0.2.140" /></script>
   </body>
 </html>
