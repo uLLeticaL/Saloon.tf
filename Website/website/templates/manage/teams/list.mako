@@ -101,8 +101,8 @@
       <div class="header">
         <h2><i class="fa fa-users"></i> Teams</h2>
         <div class="button-panel pull-right">
-          <a href="/manage/teams/" class="btn btn-lg btn-primary"><i class="fa fa-reply"></i> Back</a>
-          <a class="btn btn-lg btn-primary" data-toggle="modal" data-target="#addTeam-modal"><i class="fa fa-plus-circle"></i> Add</a>
+          <a href="/manage/teams/" class="btn btn-md btn-primary"><i class="fa fa-reply"></i> Back</a>
+          <a class="btn btn-md btn-primary" data-toggle="modal" data-target="#addTeam-modal"><i class="fa fa-plus-circle"></i> Add</a>
         </div>
       </div>
       %for id, team in enumerate(c.teams):

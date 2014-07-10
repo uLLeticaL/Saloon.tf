@@ -2,6 +2,9 @@
 <%inherit file="/base.mako" />
 <%def name="head_tags()">
   <!-- add some head tags here -->
+  <script type="text/javascript">
+    var betID = ${c.match["id"]};
+  </script>
 </%def>
 <div class="modal fade" id="inventory-modal">
   <div class="modal-dialog">
@@ -18,4 +21,28 @@
 </div>
 <div class="container bets">
   ${partials.bet(c.match)}
+  <div class="row bets-row">
+    <div class="col-md-6 left">
+      %if c.match["ownbet"]:        
+        <div class="bet-details panel panel-default animated fadeInUp">
+          <div class="panel-heading">
+            You've placed a bet on <strong>${c.match["ownbet"]["team"]["name"]}</strong>
+          </div>
+          <div class="panel-body">
+            <div class="inventory-wrapper">
+              <div class="inventory">
+                %for item in c.match["ownbet"]["items"]:
+                  %for i in range(0, item["amount"]):
+                    <div class="steam-item ${item["name"]}"></div>
+                  %endfor
+                %endfor
+              </div>
+            </div>
+          </div>
+        </div>
+      %endif
+    </div>
+    <div class="col-md-6 right">
+    </div>
+  </div>
 </div>

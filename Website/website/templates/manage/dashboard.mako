@@ -10,7 +10,7 @@
       <div class="header">
         <h2><i class="fa fa-th-large"></i> Dashboard</h2>
         <div class="button-panel pull-right">
-          <button class="btn btn-lg btn-primary" data-toggle="modal" data-target="#addLeague-modal"><i class="fa fa-refresh"></i> Refresh</button>
+          <button class="btn btn-md btn-primary" data-toggle="modal" data-target="#addLeague-modal"><i class="fa fa-refresh"></i> Refresh</button>
         </div>
       </div>
       <div class="row">

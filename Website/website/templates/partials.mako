@@ -12,13 +12,13 @@
           <h2>${team["name"]}</h2>
           <span class="specifics">
             <p>
-              %if match["bet"] is False:
+              %if match["ownbet"] is False:
                 %if c.user:
                   <button class="btn btn-md btn-primary btn-inventory" data-match="${match["id"]}" data-team="${team["id"]}" data-toggle="modal" data-target="#inventory-modal"><i class="fa fa-gavel"></i> Bet</button>
                 %else:
                   <a class="btn btn-md btn-primary" href="/login/"><i class="fa fa-gavel"></i> Bet</a>
                 %endif
-              %elif match["bet"] == team["id"]:
+              %elif match["ownbet"]["team"]["id"] == team["id"]:
                 <button class="btn btn-md btn-primary btn-inventory" data-match="${match["id"]}" data-team="${team["id"]}" data-toggle="modal" data-target="#inventory-modal"><i class="fa fa-usd"></i> Raise</button>
               %else:
                 <a class="btn btn-md btn-primary" href="/bet/${match["id"]}/switch/"><i class="fa fa-refresh"></i> Switch</a>

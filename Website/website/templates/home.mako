@@ -17,9 +17,6 @@
   </div>
 </div>
 <div class="container bets">
-  <div class="header">
-    <h2><i class="fa fa-gavel"></i> Bets</h2>
-  </div>
   %for match in c.matches:
     ${partials.bet(match)}
   %endfor

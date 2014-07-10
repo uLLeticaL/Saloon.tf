@@ -143,7 +143,7 @@
       <div class="header">
         <h2><i class="fa fa-trophy"></i> Leagues</h2>
         <div class="button-panel pull-right">
-          <button class="btn btn-lg btn-primary" data-toggle="modal" data-target="#addLeague-modal"><i class="fa fa-plus-circle"></i> Add</button>
+          <button class="btn btn-md btn-primary" data-toggle="modal" data-target="#addLeague-modal"><i class="fa fa-plus-circle"></i> Add</button>
         </div>
       </div>
       %for league in c.leagues:
