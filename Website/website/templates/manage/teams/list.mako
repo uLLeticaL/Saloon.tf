@@ -1,5 +1,5 @@
+<%namespace name="partials" file="../partials.mako"/>
 <%inherit file="/base.mako" />
-
 <%def name="head_tags()">
   <!-- add some head tags here -->
 </%def>
@@ -96,7 +96,6 @@
 </div>
 <div class="container manage">
   <div class="row">
-    <%namespace name="partials" file="../partials.mako"/>
     ${partials.menu()}
     <div class="col-sm-9">
       <div class="header">
