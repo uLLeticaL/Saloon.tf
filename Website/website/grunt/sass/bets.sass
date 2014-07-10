@@ -1,4 +1,6 @@
 body
+  &.bet
+    overflow: hidden
   &.home
     .bets
       .bet
@@ -26,7 +28,7 @@ body
         .details
           display: table-cell
           vertical-align: top
-          padding: 5px 10px
+          padding: 0px 10px
           color: $design-hl
           h2, h3
             margin: 0
@@ -35,8 +37,8 @@ body
             font-size: $font-size-h3
             text-align: left
             p
-              margin: 11px 0 0 0
-              line-height: 1.1
+              margin: 10px 0 0 0
+              line-height: 1
       .team-0
         float: left
         @media screen and (max-width: $screen-xs-max)
@@ -74,15 +76,12 @@ body
       .carousel-inner
         .item
           .inventory-wrapper
-            height: 354px
-            min-height: 354px
-            position: relative
+            height: 282px
+            min-height: 282px
+            margin-bottom: 5px
+            text-align: center
             .inventory
-              @extend .clearfix
-              position: absolute
-              left: 50%
-              width: 472px
-              margin-left: -236px
+              width: 440px
   .btn-bet-wrapper
     height: 41px
     min-height: 41px
@@ -92,6 +91,12 @@ body
     .btn-bet
       position: absolute
       left: 50%
-      width: 472px
+      width: 440px
       margin-top: 5px
-      margin-left: -236px
+      margin-left: -220px
+
+.inventory-wrapper
+  margin: -5px
+  .inventory
+    @extend .clearfix
+    display: inline-block
