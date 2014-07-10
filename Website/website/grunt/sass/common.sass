@@ -9,8 +9,6 @@
 .list-group
   border-radius: 5px
   border: 1px solid #000
-.panel-heading
-  font-size: $font-size-h3
 .fileinput-control
   vertical-align: top
   overflow: hidden
@@ -44,10 +42,25 @@ label
 
 .steam-item
   float: left
-  padding: 5px
   margin: 5px
   border: solid 2px $design-item
   border-radius: $border-radius-base
+  width: 84px
+  height: 70px
+  &.lg
+    width: 100px
+    height: 84px
+  background-size: 90%
+  background-repeat: no-repeat
+  background-position: center
+  &.keys
+    background-image: url("/images/items/keys.png")
+  &.refs
+    background-image: url("/images/items/refs.png")
+  &.recs
+    background-image: url("/images/items/recs.png")
+  &.scraps
+    background-image: url("/images/items/scraps.png")
   .check
     display: none
   &:hover
