@@ -40,7 +40,7 @@ class UsersPermissions(Base):
 
 class Matches(Base):
   __tablename__ = 'matches'
-  id = Column(Integer, primary_key=True)
+  id = Column(Integer, ForeignKey('betsTotal.match'), primary_key=True)
   league = Column(Integer, ForeignKey('leagues.id'))
   team1 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
   team2 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
@@ -49,8 +49,8 @@ class Matches(Base):
   League = relationship("Leagues")
   Team1 = relationship("Teams", foreign_keys=team1)
   Team2 = relationship("Teams", foreign_keys=team2)
-  BetsTotal1 = relationship("BetsTotal", foreign_keys=team1)
-  BetsTotal2 = relationship("BetsTotal", foreign_keys=team2)
+  BetsTotal1 = relationship("BetsTotal", primaryjoin="and_(Matches.id == BetsTotal.match, Matches.team1 == BetsTotal.team)")
+  BetsTotal2 = relationship("BetsTotal", primaryjoin="and_(Matches.id == BetsTotal.match, Matches.team2 == BetsTotal.team)")
 
 class Leagues(Base):
   __tablename__ = 'leagues'
