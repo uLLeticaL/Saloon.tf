@@ -1,4 +1,5 @@
 <%def name="bet(match)">
+  ${match}
   <div class="clearfix well bet ${match["league"]["name"]} text-center" data-id="${match["id"]}">
     <div class="league-badge" style="background-color: #${match["league"]["colour"]};">
       <img src="/images/leagues/${match["league"]["id"]}/logo.png">

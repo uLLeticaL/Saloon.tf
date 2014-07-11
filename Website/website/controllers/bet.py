@@ -3,6 +3,7 @@ import logging
 from pylons import request, response, session, tmpl_context as c, url
 from pylons.controllers.util import abort, redirect
 
+from sqlalchemy import and_
 from website.lib.base import BaseController, render
 from website.model.user import User
 import database as db
@@ -11,58 +12,108 @@ log = logging.getLogger(__name__)
 
 class BetController(BaseController):
 
-    def index(self, id):
-        # Return a rendered template
-        #return render('/bet.mako')
-        # or, return a string
-        user = User()
-        if user:
-          c.user = user[1]
-        else:
-          c.user = False
-        c.current = "bet"
+  def index(self, betID):
+    # Return a rendered template
+    #return render('/bet.mako')
+    # or, return a string
+    user = User()
+    if user:
+      RUser = user[0]
+      c.user = user[1]
+    else:
+      c.user = False
+    c.current = "bet"
 
-        RMatch = db.Session.query(db.Matches).filter(db.Matches.id == id).first()
-        RItems = db.Session.query(db.Items).all()
+    RMatch = db.Session.query(db.Matches).filter(db.Matches.id == betID).first()
+    RItems = db.Session.query(db.Items).all()
 
-        items = {}
+    items = {}
+    for RItem in RItems:
+      items[RItem.classID] = RItem
+
+    c.match = {}
+    c.match = {}
+    c.match["id"] = RMatch.id
+    c.match["league"] = {}
+    c.match["league"]["id"] = RMatch.League.id
+    c.match["league"]["name"] = RMatch.League.name
+    c.match["league"]["type"] = RMatch.League.type
+    c.match["league"]["region"] = RMatch.League.region
+    c.match["league"]["colour"] = RMatch.League.colour
+    c.match["bets"] = []
+    c.match["ownbet"] = False
+
+    c.match["teams"] = []
+    for RTeam in [RMatch.Team1, RMatch.Team2]:
+      team = {}
+      team["id"] = RTeam.id
+      team["name"] = RTeam.name
+      team["bets"] = {}
+      c.match["teams"].append(team)
+
+    betsTotal = 0
+    for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
+      bets = 0
+      bets += RBetsTotal.metal
+      for classID in items:
+        RItem = items[classID]
+        if not RItem.metal:
+          bets += (getattr(RBetsTotal, RItem.name) * RItem.value)
+      betsTotal += bets
+      c.match["teams"][team]["bets"]["value"] = bets
+
+    if betsTotal > 0:
+      for team in c.match["teams"]:
+        team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
+    else:
+      for team in c.match["teams"]:
+        team["bets"]["percentage"] = 50
+
+    success = False
+    if c.user:
+      RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == user[0].id, db.Bets.match == RMatch.id)).first()
+      if RBet:
+        c.match["ownbet"] = {}
+        c.match["ownbet"]["user"] = {}
+        c.match["ownbet"]["user"]["id"] = RUser.id
+        c.match["ownbet"]["team"] = {}
+        c.match["ownbet"]["team"]["id"] = RBet.team
+        c.match["ownbet"]["team"]["name"] = RMatch.Team1.name if RMatch.Team1.id == RBet.team else RMatch.Team2.name
+        c.match["ownbet"]["items"] = []
+        RItems = db.Session.query(db.Items).order_by(db.Items.id.asc()).all()
         for RItem in RItems:
-          items[RItem.assetID] = RItem
+          if RItem.name not in ["refs","recs","scraps"]:
+            c.match["ownbet"]["items"].append({"name": RItem.name, "amount": getattr(RBet, RItem.name)})
+        metal = RBet.metal
+        c.match["ownbet"]["items"].append({"name": "refs", "amount": metal / 9})
+        metal -= c.match["ownbet"]["items"][-1]["amount"] * 9
+        c.match["ownbet"]["items"].append({"name": "recs", "amount": metal / 3})
+        metal -= c.match["ownbet"]["items"][-1]["amount"] * 3
+        c.match["ownbet"]["items"].append({"name": "scraps", "amount": metal})
 
-        c.match = {}
-        c.match = {}
-        c.match["id"] = RMatch.id
-        c.match["league"] = {}
-        c.match["league"]["id"] = RMatch.League.id
-        c.match["league"]["name"] = RMatch.League.name
-        c.match["league"]["type"] = RMatch.League.type
-        c.match["league"]["region"] = RMatch.League.region
-        c.match["league"]["colour"] = RMatch.League.colour
+    return render('/bet.mako')
 
-        c.match["teams"] = []
-        for RTeam in [RMatch.Team1, RMatch.Team2]:
-          team = {}
-          team["id"] = RTeam.id
-          team["name"] = RTeam.name
-          team["bets"] = {}
-          c.match["teams"].append(team)
-
-        betsTotal = 0
-        for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
-          bets = 0
-          bets += RBetsTotal.metal
-          for classID in items:
-            RItem = items[classID]
-            if not RItem.metal:
-              bets += (getattr(RBetsTotal, RItem.name) * RItem.value)
-          betsTotal += bets
-          c.match["teams"][team]["bets"]["value"] = bets
-
-        if betsTotal > 0:
-          for team in c.match["teams"]:
-            team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
+  def switch(self, betID):
+    # Return redirect('/bet/' + betID + '/')
+    user = User()
+    if user:
+      RUser = user[0]
+      c.user = user[1]
+      RMatch = db.Session.query(db.Matches).filter(db.Matches.id == betID).first()
+      if RMatch:
+        RBet = db.Session.query(db.Bets).filter(and_(db.Bets.match == RMatch.id, db.Bets.user == RUser.id)).first()
+        if RBet.team == RMatch.team1:
+          RBetsTotal1 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team1)).first()
+          RBetsTotal2 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team2)).first()
+          RBet.team = RMatch.team2
         else:
-          for team in c.match["teams"]:
-            team["bets"]["percentage"] = 50
-
-        return render('/bet.mako')
+          RBetsTotal1 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team2)).first()
+          RBetsTotal2 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team1)).first()
+          RBet.team = RMatch.team1
+        husk  = ["_sa_instance_state", "id", "match", "team"]
+        for item in [i for i in vars(RBetsTotal1).keys() if not i in husk]:
+          setattr(RBetsTotal1, item, getattr(RBetsTotal1, item) - getattr(RBet, item))
+          setattr(RBetsTotal2, item, getattr(RBetsTotal2, item) + getattr(RBet, item))
+        db.Session.commit()
+        return redirect('/bet/' + betID + '/')
+    return redirect('/')
