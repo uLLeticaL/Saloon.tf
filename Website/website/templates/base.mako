@@ -9,7 +9,7 @@
       %endif
     </script>
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.198" />
+    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.290" />
   </head>
   <body class="${c.current}">
     <header>
@@ -45,6 +45,6 @@
       </div><!-- /.container-fluid -->
     </nav>
     ${self.body()}
-    <script type="text/javascript" src="/javascript.js?v=0.2.198" /></script>
+    <script type="text/javascript" src="/javascript.js?v=0.2.290" /></script>
   </body>
 </html>

@@ -23,15 +23,7 @@ class HomeController(BaseController):
       c.user = False
     c.current = "home"
 
-    RMatches = db.Session.query(db.Matches).limit(10).all()
-    RItems = db.Session.query(db.Items).all()
-    
-    items = {}
-    c.otherItems = {}
-    for RItem in RItems:
-      if not RItem.metal:
-        c.otherItems[RItem.name] = RItem
-      items[RItem.classID] = RItem
+    RMatches = db.Session.query(db.Matches).order_by(db.Matches.id.desc()).limit(10).all()
 
     c.matches = []
     for RMatch in RMatches:
@@ -55,21 +47,14 @@ class HomeController(BaseController):
 
       betsTotal = 0
       for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
-        bets = 0
-        bets += RBetsTotal.metal
-        for classID in items:
-          RItem = items[classID]
-          if not RItem.metal:
-            bets += (getattr(RBetsTotal, RItem.name) * RItem.value)
-        betsTotal += bets
-        match["teams"][team]["bets"]["value"] = bets
-
+        betsTotal += RBetsTotal.value
+        match["teams"][team]["bets"]["value"] = RBetsTotal.value
       if betsTotal > 0:
         for team in match["teams"]:
           team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
       else:
         for team in match["teams"]:
-          team["bets"]["percentage"] = 50
+          team["bets"]["percentage"] = 0
 
       if c.user:
         RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == user[0].id, db.Bets.match == RMatch.id)).first()

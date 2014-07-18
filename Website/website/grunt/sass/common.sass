@@ -43,7 +43,7 @@ label
 .steam-item
   float: left
   margin: 5px
-  border: solid 2px $design-item
+  border: solid 2px
   border-radius: $border-radius-base
   width: 84px
   height: 70px
@@ -53,37 +53,74 @@ label
   background-size: 90%
   background-repeat: no-repeat
   background-position: center
-  &.keys
-    background-image: url("/images/items/keys.png")
-  &.refs
-    background-image: url("/images/items/refs.png")
-  &.recs
-    background-image: url("/images/items/recs.png")
-  &.scraps
-    background-image: url("/images/items/scraps.png")
+  position: relative
+  &.quality-1
+    background-color: #002700
+    border-color: #466400
+    .check
+      background: -webkit-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%)
+      background:    -moz-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%)
+      background:      -o-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%)
+      background:         linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%)
+    .value
+      background-color: #466400
+  &.quality-3
+    background-color: #001935
+    border-color: #005275
+    .check
+      background: -webkit-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%)
+      background:    -moz-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%)
+      background:      -o-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%)
+      background:         linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%)
+    .value
+      background-color: #005275
+  &.quality-6
+    background-color: #201703
+    border-color: #6F6102
+    .check
+      background: -webkit-linear-gradient(225deg, #6F6102 50%, #6F6102 50%, transparent 50%, transparent 100%)
+      background:    -moz-linear-gradient(225deg, #6F6102 50%, #6F6102 50%, transparent 50%, transparent 100%)
+      background:      -o-linear-gradient(225deg, #6F6102 50%, #6F6102 50%, transparent 50%, transparent 100%)
+      background:         linear-gradient(225deg, #6F6102 50%, #6F6102 50%, transparent 50%, transparent 100%)
+    .value
+      background-color: #6F6102
   .check
     display: none
+    position: absolute
+    top: 0
+    right: 0
   &:hover
     cursor: pointer
   &.active
-    background-color: $item-hl
-    border-color: $item-hl-border
-    position: relative
     .check
-      position: absolute
-      top: 0
-      right: 0
-      width: 38px
-      height: 38px
-      background: -webkit-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
-      background:    -moz-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
-      background:      -o-linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
-      background:         linear-gradient(225deg, $item-hl-border 50%, $item-hl-border 50%, transparent 50%, transparent 100%)
       display: block
+      width: 28px
+      height: 28px
       .fa-check
         position: absolute
-        top: 5px
+        font-size: 0.8em
+        top: 1px
         right: 1px
         margin: 0
+  .value
+    @extend .label
+    position: absolute
+    bottom: 0
+    right: 0
+    padding: 1px 2.5px
+    margin: 0
+    border-radius: 2px 0 0 0
+
 a:hover, a:focus
   text-decoration: none
+
+.popover
+  .arrow
+    display: none
+  .popover-content
+    p
+      margin-bottom: 0
+  .popover-title
+    white-space: nowrap
+  .popover-content
+    white-space: nowrap

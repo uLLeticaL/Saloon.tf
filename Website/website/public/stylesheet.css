@@ -1,4 +1,4 @@
-/*! Saloon.tf's CSS. Generated at 2014-07-10 */
+/*! Saloon.tf's CSS. Generated at 2014-07-18 */
 
 /*! normalize.css v3.0.1 | MIT License | git.io/normalize */
 html {
@@ -240,7 +240,7 @@ th {
   .dropup > .btn > .caret {
     border-top-color: #000 !important; }
 
-  .label {
+  .label, .steam-item .value {
     border: 1px solid #000; }
 
   .table {
@@ -3781,7 +3781,7 @@ tbody.collapse.in {
     background-color: white;
     cursor: not-allowed; }
 
-.label {
+.label, .steam-item .value {
   display: inline;
   padding: .2em .6em .3em;
   font-size: 75%;
@@ -3792,13 +3792,13 @@ tbody.collapse.in {
   white-space: nowrap;
   vertical-align: baseline;
   border-radius: .25em; }
-  .label:empty {
+  .label:empty, .steam-item .value:empty {
     display: none; }
-  .btn .label {
+  .btn .label, .btn .steam-item .value, .steam-item .btn .value {
     position: relative;
     top: -1px; }
 
-a.label:hover, a.label:focus {
+a.label:hover, .steam-item a.value:hover, a.label:focus, .steam-item a.value:focus {
   color: white;
   text-decoration: none;
   cursor: pointer; }
@@ -4722,13 +4722,13 @@ button.close {
   left: 0;
   z-index: 1010;
   display: none;
-  max-width: 276px;
+  max-width: 400px;
   padding: 1px;
   text-align: left;
-  background-color: white;
+  background-color: #1f1403;
   background-clip: padding-box;
-  border: 1px solid #cccccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid black;
+  border: 1px solid black;
   border-radius: 6px;
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -4748,8 +4748,8 @@ button.close {
   font-size: 16px;
   font-weight: normal;
   line-height: 18px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ebebeb;
+  background-color: #180f01;
+  border-bottom: 1px solid black;
   border-radius: 5px 5px 0 0; }
 
 .popover-content {
@@ -4774,7 +4774,7 @@ button.close {
   left: 50%;
   margin-left: -11px;
   border-bottom-width: 0;
-  border-top-color: #999999;
+  border-top-color: black;
   border-top-color: rgba(0, 0, 0, 0.05);
   bottom: -11px; }
   .popover.top > .arrow:after {
@@ -4788,7 +4788,7 @@ button.close {
   left: -11px;
   margin-top: -11px;
   border-left-width: 0;
-  border-right-color: #999999;
+  border-right-color: black;
   border-right-color: rgba(0, 0, 0, 0.05); }
   .popover.right > .arrow:after {
     content: " ";
@@ -4800,7 +4800,7 @@ button.close {
   left: 50%;
   margin-left: -11px;
   border-top-width: 0;
-  border-bottom-color: #999999;
+  border-bottom-color: black;
   border-bottom-color: rgba(0, 0, 0, 0.05);
   top: -11px; }
   .popover.bottom > .arrow:after {
@@ -4814,7 +4814,7 @@ button.close {
   right: -11px;
   margin-top: -11px;
   border-right-width: 0;
-  border-left-color: #999999;
+  border-left-color: black;
   border-left-color: rgba(0, 0, 0, 0.05); }
   .popover.left > .arrow:after {
     content: " ";
@@ -9579,51 +9579,83 @@ label {
 .steam-item {
   float: left;
   margin: 5px;
-  border: solid 2px #a3906d;
+  border: solid 2px;
   border-radius: 4px;
   width: 84px;
   height: 70px;
   background-size: 90%;
   background-repeat: no-repeat;
-  background-position: center; }
+  background-position: center;
+  position: relative; }
   .steam-item.lg {
     width: 100px;
     height: 84px; }
-  .steam-item.keys {
-    background-image: url("/images/items/keys.png"); }
-  .steam-item.refs {
-    background-image: url("/images/items/refs.png"); }
-  .steam-item.recs {
-    background-image: url("/images/items/recs.png"); }
-  .steam-item.scraps {
-    background-image: url("/images/items/scraps.png"); }
+  .steam-item.quality-1 {
+    background-color: #002700;
+    border-color: #466400; }
+    .steam-item.quality-1 .check {
+      background: -webkit-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%);
+      background: -moz-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%);
+      background: -o-linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%);
+      background: linear-gradient(225deg, #466400 50%, #466400 50%, transparent 50%, transparent 100%); }
+    .steam-item.quality-1 .value {
+      background-color: #466400; }
+  .steam-item.quality-3 {
+    background-color: #001935;
+    border-color: #005275; }
+    .steam-item.quality-3 .check {
+      background: -webkit-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%);
+      background: -moz-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%);
+      background: -o-linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%);
+      background: linear-gradient(225deg, #005275 50%, #005275 50%, transparent 50%, transparent 100%); }
+    .steam-item.quality-3 .value {
+      background-color: #005275; }
+  .steam-item.quality-6 {
+    background-color: #201703;
+    border-color: #6f6102; }
+    .steam-item.quality-6 .check {
+      background: -webkit-linear-gradient(225deg, #6f6102 50%, #6f6102 50%, transparent 50%, transparent 100%);
+      background: -moz-linear-gradient(225deg, #6f6102 50%, #6f6102 50%, transparent 50%, transparent 100%);
+      background: -o-linear-gradient(225deg, #6f6102 50%, #6f6102 50%, transparent 50%, transparent 100%);
+      background: linear-gradient(225deg, #6f6102 50%, #6f6102 50%, transparent 50%, transparent 100%); }
+    .steam-item.quality-6 .value {
+      background-color: #6f6102; }
   .steam-item .check {
-    display: none; }
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0; }
   .steam-item:hover {
     cursor: pointer; }
-  .steam-item.active {
-    background-color: #1d2904;
-    border-color: #496410;
-    position: relative; }
-    .steam-item.active .check {
+  .steam-item.active .check {
+    display: block;
+    width: 28px;
+    height: 28px; }
+    .steam-item.active .check .fa-check {
       position: absolute;
-      top: 0;
-      right: 0;
-      width: 38px;
-      height: 38px;
-      background: -webkit-linear-gradient(225deg, #496410 50%, #496410 50%, transparent 50%, transparent 100%);
-      background: -moz-linear-gradient(225deg, #496410 50%, #496410 50%, transparent 50%, transparent 100%);
-      background: -o-linear-gradient(225deg, #496410 50%, #496410 50%, transparent 50%, transparent 100%);
-      background: linear-gradient(225deg, #496410 50%, #496410 50%, transparent 50%, transparent 100%);
-      display: block; }
-      .steam-item.active .check .fa-check {
-        position: absolute;
-        top: 5px;
-        right: 1px;
-        margin: 0; }
+      font-size: 0.8em;
+      top: 1px;
+      right: 1px;
+      margin: 0; }
+  .steam-item .value {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 1px 2.5px;
+    margin: 0;
+    border-radius: 2px 0 0 0; }
 
 a:hover, a:focus {
   text-decoration: none; }
+
+.popover .arrow {
+  display: none; }
+.popover .popover-content p {
+  margin-bottom: 0; }
+.popover .popover-title {
+  white-space: nowrap; }
+.popover .popover-content {
+  white-space: nowrap; }
 
 body header {
   background-color: #140d02;
@@ -9644,8 +9676,6 @@ body .header {
     margin-top: 7px;
     margin-bottom: 7px; }
 
-body.bet {
-  overflow: hidden; }
 body.home .bets .bet:hover {
   cursor: pointer; }
 body .bets .bet {
@@ -9736,28 +9766,6 @@ body .btn-bet-wrapper {
     width: 440px;
     margin-top: 5px;
     margin-left: -220px; }
-
-.inventory-wrapper {
-  margin: -5px; }
-  .inventory-wrapper .inventory {
-    display: inline-block; }
-
-body .items-header {
-  overflow: auto;
-  margin-bottom: 10px; }
-  body .items-header h2 {
-    display: inline-block;
-    margin-top: 6px;
-    margin-bottom: 0; }
-body .items {
-  text-align: center;
-  overflow: auto; }
-  @media screen and (min-width: 1200px) {
-    body .items {
-      padding-left: 38px; } }
-  @media screen and (min-width: 992px) and (max-width: 1199px) {
-    body .items {
-      padding-left: 64px; } }
 body .progress {
   margin-bottom: 0; }
   body .progress .countdown {
@@ -9765,6 +9773,11 @@ body .progress {
     -moz-transition: width 60s linear !important;
     -o-transition: width 60s linear !important;
     transition: width 60s linear !important; }
+
+.inventory-wrapper {
+  margin: -5px; }
+  .inventory-wrapper .inventory {
+    display: inline-block; }
 
 body .manage .well {
   overflow: auto; }

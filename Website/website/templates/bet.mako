@@ -31,9 +31,9 @@
           <div class="panel-body">
             <div class="inventory-wrapper">
               <div class="inventory">
-                %for item in c.match["ownbet"]["items"]:
-                  %for i in range(0, item["amount"]):
-                    <div class="steam-item ${item["name"]}"></div>
+                %for group in c.match["ownbet"]["groups"]:
+                  %for item in range(group[2]):
+                    <div class="steam-item quality-${group[1]}" style="background-image:url('/images/items/${group[0]}.png')"></div>
                   %endfor
                 %endfor
               </div>

@@ -14,4 +14,4 @@ class LogoutController(BaseController):
         #return render('/logout.mako')
         # or, return a string
         session.delete()
-        return redirect("http://saloon.tf/home/")
+        return redirect("/home/")

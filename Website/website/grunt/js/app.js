@@ -5,19 +5,19 @@
       offset = 0;
       loadBets = function() {
         $.getJSON("/api/bet/" + betID + "/bets/offset/" + offset, function(data) {
-          var $element, bet, i, index, item, number, _i, _ref, _ref1;
+          var $element, bet, i, itemsGroup, number, _i, _j, _len, _ref, _ref1;
           console.log(data);
           for (number in data) {
             bet = data[number];
             $element = $("<div class=\"bet-details panel panel-default animated fadeInUp\"> <div class=\"panel-heading\">" + bet["user"]["name"] + " placed a bet on <strong>" + bet["team"]["name"] + "</strong> </div> <div class=\"panel-body\"> <div class=\"inventory-wrapper\"> <div class=\"inventory\"> </div> </div> </div> </div>");
-            _ref = bet["items"];
-            for (index in _ref) {
-              item = _ref[index];
-              for (i = _i = 0, _ref1 = item["amount"]; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-                $element.find(".inventory").append("<div class=\"steam-item " + item["name"] + "\"></div>");
+            _ref = bet["groups"];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              itemsGroup = _ref[_i];
+              for (i = _j = 0, _ref1 = itemsGroup[2]; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+                $element.find(".inventory").append("<div class=\"steam-item quality-" + itemsGroup[1] + "\" style=\"background-image:url('/images/items/" + itemsGroup[0] + ".png');\"></div>");
               }
             }
-            if ($(".bets-row .col-md-6.right").height() > $(".bets-row .col-md-6.left").height()) {
+            if ($(".bets-row .col-md-6.left").height() <= $(".bets-row .col-md-6.right").height()) {
               $(".bets-row .col-md-6.left").append($element);
             } else {
               $(".bets-row .col-md-6.right").append($element);
@@ -31,13 +31,13 @@
       team = void 0;
       match = void 0;
       bot = void 0;
-      socket = new WebSocket("ws://direct." + window.location.host + ":9000");
+      socket = new WebSocket("ws://direct.saloon.tf:9000");
       socket.onopen = function() {};
       socket.onclose = function() {
         $("#inventory-modal").modal("hide");
       };
       socket.onmessage = function(event) {
-        var array, callback, count, id, inventory, name, slide, _i, _len, _ref;
+        var $item, array, callback, count, id, inventory, item, itemsGroup, slide, _i, _len, _ref;
         array = JSON.parse(event.data);
         console.log(array);
         $(".connection-status").html("<i class=\"fa fa-check\"></i> Connected");
@@ -71,34 +71,37 @@
           });
           count = 0;
           slide = 0;
-          for (name in inventory) {
-            _ref = inventory[name];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              id = _ref[_i];
+          $(".steam-item").off("click");
+          for (_i = 0, _len = inventory.length; _i < _len; _i++) {
+            itemsGroup = inventory[_i];
+            _ref = itemsGroup["items"];
+            for (id in _ref) {
+              item = _ref[id];
               if (count === 12) {
                 slide += 1;
                 count = 0;
-                $("#inventory-modal .modal-body .carousel-inner").append("<div class=\"item\"><div class=\"inventory-wrapper\"><div class=\"inventory\"></div></div></div>");
+                $("#inventory-modal .carousel-inner").append("<div class=\"item\"><div class=\"inventory-wrapper\"><div class=\"inventory\"></div></div></div>");
               }
-              $("#inventory-modal .modal-body .carousel-inner .item:last .inventory").append("<div data-id=\"" + id + "\" class=\"steam-item " + name + " lg\"> <div class=\"check\"><i class=\"fa fa-check\"></i></div> </div>");
+              $item = $("<div data-assetid=\"" + id + "\" data-originid=\"" + item["originID"] + "\" class=\"steam-item lg quality-" + itemsGroup["quality"] + "\" style=\"background-image: url(\'/images/items/" + itemsGroup["defindex"] + ".png\')\"> <div class=\"check\"><i class=\"fa fa-check\"></i></div> <span class=\"value\">" + itemsGroup["value"] + "</span> </div>");
+              $item.on("click", function() {
+                $(this).toggleClass("active");
+                if ($(".steam-item.active").length > 0) {
+                  return $(".btn-bet").removeClass("disabled");
+                } else {
+                  return $(".btn-bet").addClass("disabled");
+                }
+              });
+              $("#inventory-modal .inventory").append($item);
               count += 1;
             }
           }
-          $(".steam-item").off("click");
-          $(".steam-item").on("click", function() {
-            $(this).toggleClass("active");
-            if ($(".steam-item.active").length > 0) {
-              return $(".btn-bet").removeClass("disabled");
-            } else {
-              return $(".btn-bet").addClass("disabled");
-            }
-          });
           return $(".btn-bet").on("click", function() {
             var items, json;
             items = [];
             $(".steam-item.active").each(function() {
-              return items.push($(this).data("id"));
+              return items.push($(this).data("assetid"));
             });
+            console.log(items);
             $("#inventory-modal .modal-body").html("<p class=\"connection-status\"><i class=\"fa fa-check\"></i> Connected</p> <p class=\"inventory-status\"><i class=\"fa fa-check\"></i> Inventory</p> <p class=\"bet-status\"><i class=\"fa fa-spin fa-spinner\"></i> Sending tradeoffer</p>");
             json = JSON.stringify(["bet", match, team, items]);
             socket.send(json);

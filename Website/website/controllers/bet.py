@@ -1,8 +1,9 @@
 import logging
 
+from sqlalchemy.sql.expression import tuple_
 from pylons import request, response, session, tmpl_context as c, url
 from pylons.controllers.util import abort, redirect
-
+from collections import defaultdict, Counter
 from sqlalchemy import and_
 from website.lib.base import BaseController, render
 from website.model.user import User
@@ -27,9 +28,9 @@ class BetController(BaseController):
     RMatch = db.Session.query(db.Matches).filter(db.Matches.id == betID).first()
     RItems = db.Session.query(db.Items).all()
 
-    items = {}
+    items = defaultdict(dict)
     for RItem in RItems:
-      items[RItem.classID] = RItem
+      items[RItem.defindex][RItem.quality] = RItem
 
     c.match = {}
     c.match = {}
@@ -53,23 +54,15 @@ class BetController(BaseController):
 
     betsTotal = 0
     for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
-      bets = 0
-      bets += RBetsTotal.metal
-      for classID in items:
-        RItem = items[classID]
-        if not RItem.metal:
-          bets += (getattr(RBetsTotal, RItem.name) * RItem.value)
-      betsTotal += bets
-      c.match["teams"][team]["bets"]["value"] = bets
-
+      betsTotal += RBetsTotal.value
+      c.match["teams"][team]["bets"]["value"] = RBetsTotal.value
     if betsTotal > 0:
       for team in c.match["teams"]:
         team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
     else:
       for team in c.match["teams"]:
-        team["bets"]["percentage"] = 50
+        team["bets"]["percentage"] = 0
 
-    success = False
     if c.user:
       RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == user[0].id, db.Bets.match == RMatch.id)).first()
       if RBet:
@@ -79,17 +72,7 @@ class BetController(BaseController):
         c.match["ownbet"]["team"] = {}
         c.match["ownbet"]["team"]["id"] = RBet.team
         c.match["ownbet"]["team"]["name"] = RMatch.Team1.name if RMatch.Team1.id == RBet.team else RMatch.Team2.name
-        c.match["ownbet"]["items"] = []
-        RItems = db.Session.query(db.Items).order_by(db.Items.id.asc()).all()
-        for RItem in RItems:
-          if RItem.name not in ["refs","recs","scraps"]:
-            c.match["ownbet"]["items"].append({"name": RItem.name, "amount": getattr(RBet, RItem.name)})
-        metal = RBet.metal
-        c.match["ownbet"]["items"].append({"name": "refs", "amount": metal / 9})
-        metal -= c.match["ownbet"]["items"][-1]["amount"] * 9
-        c.match["ownbet"]["items"].append({"name": "recs", "amount": metal / 3})
-        metal -= c.match["ownbet"]["items"][-1]["amount"] * 3
-        c.match["ownbet"]["items"].append({"name": "scraps", "amount": metal})
+        c.match["ownbet"]["groups"] = RBet.groups
 
     return render('/bet.mako')
 
@@ -110,10 +93,40 @@ class BetController(BaseController):
           RBetsTotal1 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team2)).first()
           RBetsTotal2 = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == RMatch.id, db.BetsTotal.team == RMatch.team1)).first()
           RBet.team = RMatch.team1
-        husk  = ["_sa_instance_state", "id", "match", "team"]
-        for item in [i for i in vars(RBetsTotal1).keys() if not i in husk]:
-          setattr(RBetsTotal1, item, getattr(RBetsTotal1, item) - getattr(RBet, item))
-          setattr(RBetsTotal2, item, getattr(RBetsTotal2, item) + getattr(RBet, item))
+
+        RBetsTotal1.value -= RBet.value
+        RBetsTotal2.value += RBet.value
+
+        keys = []
+        totalGroups1 = defaultdict(Counter)
+        for group in RBetsTotal1.groups:
+          totalGroups1[group[0]][group[1]] = group[2]
+          keys.append((group[0], group[1]))
+
+        totalGroups2 = defaultdict(Counter)
+        for group in RBetsTotal2.groups:
+          totalGroups2[group[0]][group[1]] = group[2]
+          keys.append((group[0], group[1]))
+        
+        # Convert PostgreSQL's multidimensional array to dictionary
+        usersGroups = defaultdict(Counter)
+        for group in RBet.groups:
+          totalGroups1[group[0]][group[1]] -= group[2]
+          totalGroups2[group[0]][group[1]] += group[2]
+
+        orderedGroups1 = []
+        orderedGroups2 = []
+        orderedItems = db.Session.query(db.Items).filter(tuple_(db.Items.defindex, db.Items.quality).in_(keys)).order_by(db.Items.type, db.Items.quality, db.Items.value.desc()).all()
+        for orderedItem in orderedItems:
+          defindex = orderedItem.defindex
+          quality = orderedItem.quality
+          if quality in totalGroups1[defindex]:
+            orderedGroups1.append([defindex, quality, totalGroups1[defindex][quality]])
+          if quality in totalGroups2[defindex]:
+            orderedGroups2.append([defindex, quality, totalGroups2[defindex][quality]])
+        RBetsTotal1.groups = orderedGroups1
+        RBetsTotal2.groups = orderedGroups2
+
         db.Session.commit()
         return redirect('/bet/' + betID + '/')
     return redirect('/')
