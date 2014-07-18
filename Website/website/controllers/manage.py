@@ -24,9 +24,9 @@ class ManageController(BaseController):
         c.managePage = "dashboard"
         return render('/manage/dashboard.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def leagues(self):
     # Returns a rendered template
@@ -61,9 +61,9 @@ class ManageController(BaseController):
 
         return render('/manage/leagues.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def addLeague(self):
     # Returns redirection to /manage/leagues
@@ -173,9 +173,9 @@ class ManageController(BaseController):
 
         return render('/manage/teams/index.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def teamsList(self, leagueID):
     # Returns a rendered template
@@ -218,9 +218,9 @@ class ManageController(BaseController):
 
         return render('/manage/teams/list.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def addTeam(self, leagueID):
     # Returns a redirection to /manage/teams/{leagueID}
@@ -334,9 +334,9 @@ class ManageController(BaseController):
 
         return render('/manage/matches/index.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def matchesList(self, leagueID):
     # Returns a rendered template
@@ -390,9 +390,9 @@ class ManageController(BaseController):
 
         return render('/manage/matches/list.mako')
       else:
-        return redirect('http://saloon.tf/home/')
+        return redirect('/home/')
     else:
-      return redirect('http://saloon.tf/home/')
+      return redirect('/home/')
 
   def addMatch(self, leagueID):
     # Returns a redirection to matches
