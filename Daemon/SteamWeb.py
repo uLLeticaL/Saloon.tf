@@ -1,13 +1,8 @@
-import re
-import os
-import time
-import json
-import base64
-import colorama as color
+from mechanize import Browser, HTTPError, URLError
+import re, os, time, json, base64, colorama as color
 import urllib, cookielib
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
-from mechanize import Browser, HTTPError, URLError
 
 class Bot(object):
   def __init__(self, botID, name, steam, Callback):
@@ -30,7 +25,7 @@ class Bot(object):
     self.Authenticate()
 
   def Log(self, message):
-    self.Callback.Log(self.name, message)
+    self.Callback.log(self.name, message)
 
   def Community(self):
     # Pass Bot to the O objects.
@@ -160,6 +155,9 @@ class Bot(object):
             count += 1
       return friends
 
+    def Inventory(self):
+      return self.OFriend(self.Bot, self.Bot.steam["id"], False).inventory()
+
     def Friend(self, steamID, prefetch = False):
       return self.OFriend(self.Bot, steamID, prefetch)
 
@@ -179,7 +177,6 @@ class Bot(object):
         }
         response = self.Bot.Ajax('AddFriendAjax', parameters)
         if response:
-          print response
           self.Bot.Log("Sent friend request to " + str(self.steamID))
           return True
         else:
@@ -210,45 +207,27 @@ class Bot(object):
         else:
           self.Bot.Log("Couldn't remove " + str(self.steamID) + " from the friends list.")
           return False
-
+      
       def inventory(self, appID = 440, contextID = 2):
-        parameters = {"partner": str(self.SID.toAccount())}
-        if self.token:
-          parameters["token"] = self.token
-        data = urllib.urlencode(parameters)
-        self.Bot.browser.addheaders = [('Referer', "https://steamcommunity.com/tradeoffer/new/?" + data)]
-
-        parameters = {
-          'partner': str(self.steamID).encode("utf-8"),
-          'appid': str(appID).encode("utf-8"),
-          'contextid': str(contextID).encode("utf-8"),
-          'sessionid': self.Bot.sessionid.encode("utf-8")
-        }
-        data = urllib.urlencode(parameters)
-        for i in range(0,3):
-          try:
-            response = self.Bot.browser.open("http://steamcommunity.com/tradeoffer/new/partnerinventory/?" + data, timeout = 5.0)
-          except (HTTPError, URLError) as error:
-            continue
-          response = json.loads(response.read())
-          if response[u"success"]:
-            if response[u"rgInventory"]:
-              inventory = {}
-              for id in response[u"rgInventory"]:
-                classid = int(response[u"rgInventory"][id][u"classid"])
-                instanceid = int(response[u"rgInventory"][id][u"instanceid"])
-                if classid in inventory:
-                  inventory[classid][0] += 1
-                  inventory[classid][3].append(id)
-                else:
-                  inventory[classid] = [0, classid, instanceid, [id]]
-              return [True, inventory]
-            else:
-              return [False, "private"]
-          else:
-            return [False, "error"]
+        items = {}
+        parameters = {'steamid': self.steamID}
+        inventory = self.Bot.API("IEconItems_440/GetPlayerItems/v0001", parameters)
+        if inventory:
+          for item in inventory[u"result"][u"items"]:
+            if item[u"defindex"] not in items:
+              items[item[u"defindex"]] = {}
+            items[item[u"defindex"]][item[u"id"]] = {
+              "assetID": item[u"id"],
+              "originID": item[u"original_id"],
+              "level": item[u"level"],
+              "quality": item[u"quality"],
+              "origin": item[u"origin"],
+              "tradable": not u"flag_cannot_trade" in item,
+              "craftable": not u"flag_cannot_craft" in item
+            }
+          return items
         self.Bot.Log("Couldn't load inventory.")
-        return [False, "error"]
+        return False
 
       def summary(self):
         parameters = {'steamids': self.steamID}
@@ -295,22 +274,27 @@ class Bot(object):
         'trade_offer_create_params': json.dumps(createParams)
       }
       data = urllib.urlencode(parameters)
-      print data
       for i in range(0,3):
+        requestTime = int(round(time.time() * 1000))
         try:
           response = self.Bot.browser.open("https://steamcommunity.com/tradeoffer/new/send", data, timeout = 5.0)
           response = json.loads(response.read())
           return int(response["tradeofferid"])
         except (HTTPError, URLError) as error:
-          print error
+          parameters = {"get_sent_offers": 1}
+          response = self.Bot.API("IEconService/GetTradeOffers/v0001", parameters)
+          offers = response[u"response"][u"trade_offers_sent"]
+          for offer in offers:
+            if offer[u"time_created"] >= requestTime:
+              if offer[u"accountid_other"] == Partner.SID.toAccount():
+                return int(offer["tradeofferid"])
+              else:
+                continue
+            else:
+              break
           continue
       self.Bot.Log("Couldn't send tradeoffer.")
       return False
-
-    def GetOffer(self, offerID):
-      parameters = {'tradeofferid': str(offerID)}
-      response = self.Bot.API("IEconService/GetTradeOffer/v0001", parameters)
-      print response
 
     def GetOffers(self, offerType = "received", offerState = 2, active = True):
       parameters = {
@@ -343,26 +327,7 @@ class Bot(object):
           if offer[u"trade_offer_state"] == offerState:
             steamID = SID(accountID = offer[u"accountid_other"]).toCommunity()
             Partner = self.Bot.Community().Friend(steamID)
-
-            itemsToGive = []
-            if u"items_to_give" in offer:
-              broken = False
-              for item in offer[u"items_to_give"]:
-                classID = item[u"classid"].encode('ascii', 'ignore')
-                amount = int(item[u"amount"])
-                itemsToGive.append([amount, classID])
-
-            itemsToReceive = []
-            if u"items_to_receive" in offer:
-              broken = False
-              for item in offer[u"items_to_receive"]:
-                classID = item[u"classid"].encode('ascii', 'ignore')
-                amount = int(item[u"amount"])
-                itemsToReceive.append([amount, classID])
-
             offer = self.Offer(offerID, Partner)
-            offer.itemsToGive = itemsToGive
-            offer.itemsToReceive = itemsToReceive
             offers[offerID] = offer
         return offers
       else:
@@ -376,6 +341,8 @@ class Bot(object):
         self.offerID = offerID
         self.Partner = Partner
         self.Bot = bot
+        self.itemsToReceive = False
+        self.itemsToGive = False
         self.summary()
 
       def accept(self):
@@ -408,6 +375,18 @@ class Bot(object):
           self.Bot.Log("Couldn't decline #" + str(self.offerID) + " offer.")
           return False
 
+      def cancel(self):
+        parameters = {
+          'tradeofferid': str(self.offerID)
+        }
+        response = self.Bot.API("IEconService/CancelTradeOffer/v1", parameters)
+        if response:
+          self.Bot.Log("Canceled #" + str(self.offerID) + " offer.")
+          return True
+        else:
+          self.Bot.Log("Couldn't cancel #" + str(self.offerID) + " offer.")
+          return False
+
       def summary(self):
         parameters = {'tradeofferid': str(self.offerID)}
         response = self.Bot.API("IEconService/GetTradeOffer/v0001", parameters)
@@ -417,33 +396,70 @@ class Bot(object):
           self.state = offer[u"trade_offer_state"]
           self.message = offer[u"message"]
           self.expirationTime = offer[u"expiration_time"]
-          self.itemsToReceive = []
-          if u"items_to_receive" in offer:
-            for item in offer[u"items_to_receive"]:
-              self.itemsToReceive.append({
-                "appid": int(item[u"appid"]),
-                "contextid": int(item[u"contextid"]),
-                "amount": int(item[u"amount"]),
-                "assetid": int(item[u"assetid"]),
-                "classid": int(item[u"classid"])
-              })
-          self.itemsToGive = []
-          if u"items_to_give" in offer:
-            for item in offer[u"items_to_give"]:
-              self.itemsToGive.append({
-                "appid": int(item[u"appid"]),
-                "contextid": int(item[u"contextid"]),
-                "amount": int(item[u"amount"]),
-                "assetid": int(item[u"assetid"]),
-                "classid": int(item[u"classid"])
-              })
+          if not self.itemsToReceive:
+            descriptions = {}
+            if u"descriptions" in response:
+              for item in response[u"descriptions"]:
+                descriptions[item["classid"] + "_" + item["instanceid"]] = item
+            self.itemsToReceive = {}
+            if u"items_to_receive" in offer:
+              for item in offer[u"items_to_receive"]:
+                classID = int(item[u"classid"])
+                assetID = int(item[u"assetid"])
+                if not classID in self.itemsToReceive:
+                  self.itemsToReceive[classID] = {
+                    "classID": classID,
+                    "appid": int(item[u"appid"]),
+                    "contextid": int(item[u"contextid"]),
+                    "items": {}
+                  }
+                self.itemsToReceive[classID]["items"][assetID] = {}
+                if descriptions:
+                  description = descriptions[item["classid"] + "_" + item["instanceid"]]
+                  self.itemsToReceive[classID]["name"] = description[u"name"]
+                  self.itemsToReceive[classID]["type"] = description[u"type"]
+                  self.itemsToReceive[classID]["items"][assetID] = {
+                    "craftable": not (u"descriptions" in description and "( Not Usable in Crafting )" in [attribute["value"] for attribute in description[u"descriptions"]]),
+                    "tradable": description[u"tradable"],
+                    "background_color": description[u"background_color"],
+                    "name_color": description[u"name_color"]
+                  }
+
+            self.itemsToGive = {}
+            if u"items_to_give" in offer:
+              for item in offer[u"items_to_receive"]:
+                classID = int(item[u"classid"])
+                assetID = int(item[u"assetid"])
+
+                if not classID in self.itemsToGive:
+                  self.itemsToGive[classID] = {
+                    "classid": classID,
+                    "assetid": int(item[u"assetid"]),
+                    "appid": int(item[u"appid"]),
+                    "contextid": int(item[u"contextid"]),
+                    "items": {}
+                  }
+                self.itemsToGive[classID]["items"][assetID] = {}
+                if descriptions:
+                  description = descriptions[item["classid"] + "_" + item["instanceid"]]
+                  self.itemsToGive[classID]["name"] = description[u"name"]
+                  self.itemsToGive[classID]["type"] = description[u"type"]
+                  self.itemsToGive[classID]["items"][assetID] = {
+                    "craftable": not (u"descriptions" in description and "( Not Usable in Crafting )" in [attribute["value"] for attribute in description[u"descriptions"]]),
+                    "tradable": description[u"tradable"],
+                    "background_color": description[u"background_color"],
+                    "name_color": description[u"name_color"]
+                  }
 
   def API(self, message, parameters):
     parameters['key'] = self.steam["api"]
     data = urllib.urlencode(parameters)
     for i in range(0,3):
       try:
-        response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 5.0)
+        if "DeclineTradeOffer" in message or "CancelTradeOffer" in message:
+          response = self.browser.open("http://api.steampowered.com/" + message + "/", data, timeout = 5.0)
+        else:
+          response = self.browser.open("http://api.steampowered.com/" + message + "/?" + data, timeout = 5.0)
       except (HTTPError, URLError) as error:
         continue
       response = json.loads(response.read())
