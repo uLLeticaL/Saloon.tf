@@ -3,20 +3,20 @@
 --
 
 SET statement_timeout = 0;
-SET client_encoding = 'SQL_ASCII';
+SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -29,7 +29,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: bets; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: bets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE bets (
@@ -37,15 +37,14 @@ CREATE TABLE bets (
     "user" integer,
     match integer,
     team integer,
-    keys integer,
-    metal integer
+    groups integer[],
+    value integer,
+    items bigint[]
 );
 
 
-ALTER TABLE public.bets OWNER TO postgres;
-
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: betsIndividual_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE "betsIndividual_id_seq"
@@ -56,34 +55,28 @@ CREATE SEQUENCE "betsIndividual_id_seq"
     CACHE 1;
 
 
-ALTER TABLE public."betsIndividual_id_seq" OWNER TO postgres;
-
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: betsIndividual_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE "betsIndividual_id_seq" OWNED BY bets.id;
 
 
 --
--- Name: betsTotal; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: betsTotal; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE "betsTotal" (
     match integer,
     team integer,
-    buds integer,
-    bills integer,
-    keys integer,
-    metal integer,
-    id integer NOT NULL
+    id integer NOT NULL,
+    value integer,
+    groups integer[]
 );
 
 
-ALTER TABLE public."betsTotal" OWNER TO postgres;
-
 --
--- Name: betsSummary_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: betsSummary_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE "betsSummary_id_seq"
@@ -94,17 +87,15 @@ CREATE SEQUENCE "betsSummary_id_seq"
     CACHE 1;
 
 
-ALTER TABLE public."betsSummary_id_seq" OWNER TO postgres;
-
 --
--- Name: betsSummary_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: betsSummary_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE "betsSummary_id_seq" OWNED BY "betsTotal".id;
 
 
 --
--- Name: bots; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: bots; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE bots (
@@ -116,14 +107,13 @@ CREATE TABLE bots (
     "steamID" text,
     "steamAPI" text,
     id integer NOT NULL,
-    "tradeLink" text
+    "tradeLink" text,
+    "backpackAPI" text
 );
 
 
-ALTER TABLE public.bots OWNER TO postgres;
-
 --
--- Name: bots_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: bots_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE bots_id_seq
@@ -134,17 +124,15 @@ CREATE SEQUENCE bots_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.bots_id_seq OWNER TO postgres;
-
 --
--- Name: bots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: bots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE bots_id_seq OWNED BY bots.id;
 
 
 --
--- Name: countries; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: countries; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE countries (
@@ -153,27 +141,23 @@ CREATE TABLE countries (
 );
 
 
-ALTER TABLE public.countries OWNER TO postgres;
-
 --
--- Name: items; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: items; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE items (
     id integer NOT NULL,
-    name text,
     value integer,
-    metal boolean,
     defindex integer,
-    "assetID" integer,
-    "classID" integer
+    description text,
+    type integer,
+    quality integer,
+    "timestamp" integer
 );
 
 
-ALTER TABLE public.items OWNER TO postgres;
-
 --
--- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE items_id_seq
@@ -184,17 +168,15 @@ CREATE SEQUENCE items_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.items_id_seq OWNER TO postgres;
-
 --
--- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE items_id_seq OWNED BY items.id;
 
 
 --
--- Name: leagues; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: leagues; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE leagues (
@@ -206,10 +188,8 @@ CREATE TABLE leagues (
 );
 
 
-ALTER TABLE public.leagues OWNER TO postgres;
-
 --
--- Name: leagues_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: leagues_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE leagues_id_seq
@@ -220,17 +200,15 @@ CREATE SEQUENCE leagues_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.leagues_id_seq OWNER TO postgres;
-
 --
--- Name: leagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: leagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE leagues_id_seq OWNED BY leagues.id;
 
 
 --
--- Name: matches; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: matches; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE matches (
@@ -239,14 +217,13 @@ CREATE TABLE matches (
     team1 integer,
     team2 integer,
     stream text,
-    won integer DEFAULT 0
+    won integer DEFAULT 0,
+    "startTime" timestamp with time zone
 );
 
 
-ALTER TABLE public.matches OWNER TO postgres;
-
 --
--- Name: matches_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: matches_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE matches_id_seq
@@ -257,17 +234,15 @@ CREATE SEQUENCE matches_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.matches_id_seq OWNER TO postgres;
-
 --
--- Name: matches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: matches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE matches_id_seq OWNED BY matches.id;
 
 
 --
--- Name: teams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: teams; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE teams (
@@ -279,10 +254,8 @@ CREATE TABLE teams (
 );
 
 
-ALTER TABLE public.teams OWNER TO postgres;
-
 --
--- Name: teams_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: teams_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE teams_id_seq
@@ -293,53 +266,29 @@ CREATE SEQUENCE teams_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.teams_id_seq OWNER TO postgres;
-
 --
--- Name: teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: teams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE teams_id_seq OWNED BY teams.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE users (
     id integer NOT NULL,
     name text,
     avatar text,
-    "steamID" bigint
+    "steamID" bigint,
+    bot integer DEFAULT 1 NOT NULL,
+    token text
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
-
-
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE "usersPermissions"
-(
-  "user" integer NOT NULL,
-  manage boolean DEFAULT false,
-  leagues boolean DEFAULT false,
-  teams boolean DEFAULT false,
-  users boolean DEFAULT false,
-  bets boolean DEFAULT false,
-  bots boolean DEFAULT false,
-  CONSTRAINT "usersPermissions_pkey" PRIMARY KEY ("user" )
-)
-WITH (
-  OIDS=FALSE
-);
-
-ALTER TABLE public."usersPermissions" OWNER TO postgres;
-
---
--- Name: usersItems; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: usersItems; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE "usersItems" (
@@ -349,10 +298,24 @@ CREATE TABLE "usersItems" (
 );
 
 
-ALTER TABLE public."usersItems" OWNER TO postgres;
+--
+-- Name: usersPermissions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE "usersPermissions" (
+    "user" integer NOT NULL,
+    manage boolean DEFAULT false,
+    leagues boolean DEFAULT false,
+    teams boolean DEFAULT false,
+    users boolean DEFAULT false,
+    bets boolean DEFAULT false,
+    bots boolean DEFAULT false,
+    permissions boolean DEFAULT false NOT NULL
+);
+
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE users_id_seq
@@ -363,331 +326,71 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
-
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY bets ALTER COLUMN id SET DEFAULT nextval('"betsIndividual_id_seq"'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY "betsTotal" ALTER COLUMN id SET DEFAULT nextval('"betsSummary_id_seq"'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY bots ALTER COLUMN id SET DEFAULT nextval('bots_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY items ALTER COLUMN id SET DEFAULT nextval('items_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY leagues ALTER COLUMN id SET DEFAULT nextval('leagues_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY matches ALTER COLUMN id SET DEFAULT nextval('matches_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY teams ALTER COLUMN id SET DEFAULT nextval('teams_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: betsIndividual_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('"betsIndividual_id_seq"', 1, false);
-
-
---
--- Name: betsSummary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('"betsSummary_id_seq"', 2, true);
-
---
--- Name: bots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('bots_id_seq', 6, true);
-
-
---
--- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY countries (id, name) FROM stdin;
-AF	Afghanistan
-AL	Albania
-DZ	Algeria
-AS	American Samoa
-AD	Andorra
-AO	Angola
-AI	Anguilla
-AQ	Antarctica
-AG	Antigua and Barbuda
-AR	Argentina
-AM	Armenia
-AW	Aruba
-AU	Australia
-AT	Austria
-AZ	Azerbaijan
-BS	Bahamas
-BH	Bahrain
-BD	Bangladesh
-BB	Barbados
-BY	Belarus
-BE	Belgium
-BZ	Belize
-BJ	Benin
-BM	Bermuda
-BT	Bhutan
-BO	Bolivia
-BA	Bosnia and Herzegovina
-BW	Botswana
-BV	Bouvet Island
-BR	Brazil
-BQ	British Antarctic Territory
-IO	British Indian Ocean Territory
-VG	British Virgin Islands
-BN	Brunei
-BG	Bulgaria
-BF	Burkina Faso
-BI	Burundi
-KH	Cambodia
-CM	Cameroon
-CA	Canada
-CT	Canton and Enderbury Islands
-CV	Cape Verde
-KY	Cayman Islands
-CF	Central African Republic
-TD	Chad
-CL	Chile
-CN	China
-CX	Christmas Island
-CC	Cocos [Keeling] Islands
-CO	Colombia
-KM	Comoros
-CG	Congo - Brazzaville
-CD	Congo - Kinshasa
-CK	Cook Islands
-CR	Costa Rica
-HR	Croatia
-CU	Cuba
-CY	Cyprus
-CZ	Czech Republic
-DK	Denmark
-DJ	Djibouti
-DM	Dominica
-DO	Dominican Republic
-NQ	Dronning Maud Land
-DD	East Germany
-EC	Ecuador
-EG	Egypt
-SV	El Salvador
-GQ	Equatorial Guinea
-ER	Eritrea
-EE	Estonia
-ET	Ethiopia
-FK	Falkland Islands
-FO	Faroe Islands
-FJ	Fiji
-FI	Finland
-FR	France
-GF	French Guiana
-PF	French Polynesia
-TF	French Southern Territories
-FQ	French Southern and Antarctic Territories
-GA	Gabon
-GM	Gambia
-GE	Georgia
-DE	Germany
-GH	Ghana
-GI	Gibraltar
-GR	Greece
-GL	Greenland
-GD	Grenada
-GP	Guadeloupe
-GU	Guam
-GT	Guatemala
-GG	Guernsey
-GN	Guinea
-GW	Guinea-Bissau
-GY	Guyana
-HT	Haiti
-HM	Heard Island and McDonald Islands
-HN	Honduras
-HK	Hong Kong SAR China
-HU	Hungary
-IS	Iceland
-IN	India
-ID	Indonesia
-IR	Iran
-IQ	Iraq
-IE	Ireland
-IM	Isle of Man
-IL	Israel
-IT	Italy
-JM	Jamaica
-JP	Japan
-JE	Jersey
-JT	Johnston Island
-JO	Jordan
-KZ	Kazakhstan
-KE	Kenya
-KI	Kiribati
-KW	Kuwait
-KG	Kyrgyzstan
-LA	Laos
-LV	Latvia
-LB	Lebanon
-LS	Lesotho
-LR	Liberia
-LY	Libya
-LI	Liechtenstein
-LT	Lithuania
-LU	Luxembourg
-MO	Macau SAR China
-MK	Macedonia
-MG	Madagascar
-MW	Malawi
-MY	Malaysia
-MV	Maldives
-ML	Mali
-MT	Malta
-MH	Marshall Islands
-MQ	Martinique
-MR	Mauritania
-MU	Mauritius
-YT	Mayotte
-FX	Metropolitan France
-MX	Mexico
-FM	Micronesia
-MI	Midway Islands
-MD	Moldova
-MC	Monaco
-MN	Mongolia
-ME	Montenegro
-MS	Montserrat
-MA	Morocco
-MZ	Mozambique
-MM	Myanmar [Burma]
-NA	Namibia
-NR	Nauru
-NP	Nepal
-NL	Netherlands
-AN	Netherlands Antilles
-NT	Neutral Zone
-NC	New Caledonia
-NZ	New Zealand
-NI	Nicaragua
-NE	Niger
-NG	Nigeria
-NU	Niue
-NF	Norfolk Island
-KP	North Korea
-VD	North Vietnam
-MP	Northern Mariana Islands
-NO	Norway
-OM	Oman
-PC	Pacific Islands Trust Territory
-PK	Pakistan
-PW	Palau
-PS	Palestinian Territories
-PA	Panama
-PZ	Panama Canal Zone
-PG	Papua New Guinea
-PY	Paraguay
-EU	Europe
-CI	Ivory Coast
-\.
-
-
---
--- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY items (id, name, value, metal, defindex, "assetID", "classID") FROM stdin;
-1	keys	67	f	5717	\N	101785959
-6	refs	9	t	5002	\N	2674
-5	recs	3	t	5001	\N	5564
-2	scraps	1	t	5000	\N	2675
-\.
-
-
---
--- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('items_id_seq', 6, true);
-
-
---
--- Name: leagues_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('leagues_id_seq', 24, true);
-
-
---
--- Name: matches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('matches_id_seq', 1, true);
-
-
---
--- Name: teams_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('teams_id_seq', 8, true);
-
-
---
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('users_id_seq', 117, true);
-
-
---
--- Name: betsIndividual_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: betsIndividual_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY bets
@@ -695,7 +398,7 @@ ALTER TABLE ONLY bets
 
 
 --
--- Name: betsSummary_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: betsSummary_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY "betsTotal"
@@ -703,7 +406,7 @@ ALTER TABLE ONLY "betsTotal"
 
 
 --
--- Name: bots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: bots_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY bots
@@ -711,7 +414,7 @@ ALTER TABLE ONLY bots
 
 
 --
--- Name: country_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: country_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY countries
@@ -719,7 +422,7 @@ ALTER TABLE ONLY countries
 
 
 --
--- Name: items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: items_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY items
@@ -727,7 +430,7 @@ ALTER TABLE ONLY items
 
 
 --
--- Name: leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: leagues_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY leagues
@@ -735,7 +438,7 @@ ALTER TABLE ONLY leagues
 
 
 --
--- Name: matches_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: matches_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY matches
@@ -743,7 +446,7 @@ ALTER TABLE ONLY matches
 
 
 --
--- Name: teams_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: teams_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY teams
@@ -751,7 +454,7 @@ ALTER TABLE ONLY teams
 
 
 --
--- Name: usersItems_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: usersItems_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY "usersItems"
@@ -759,7 +462,15 @@ ALTER TABLE ONLY "usersItems"
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: usersPermissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY "usersPermissions"
+    ADD CONSTRAINT "usersPermissions_pkey" PRIMARY KEY ("user");
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY users
@@ -767,7 +478,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: postgres
+-- Name: public; Type: ACL; Schema: -; Owner: -
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
