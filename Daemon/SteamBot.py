@@ -130,7 +130,6 @@ class Handler(object):
       r.start()
       while not self.timeouted:
         offer.summary()
-        print offer.state
         if offer.state == 3 or offer.state == 8:
           r.cancel()
           self.process(offer)
@@ -269,7 +268,7 @@ class Schema(object):
     itemPrices = itemPrices[u"response"][u"items"]
 
     types = {
-      52575: 1,
+      143: 1,
       5021: 2,
       5002: 5,
       5001: 5,
@@ -310,8 +309,6 @@ class Schema(object):
       if len(item[u"defindex"]) > 0:
         defindex = item[u"defindex"][0]
         try:
-          if defindex == 150:
-            print item[u"prices"].keys()
           for quality, price in item[u"prices"].items():
             quality = int(quality)
             if quality in [1,3,6]:
@@ -344,6 +341,7 @@ class Schema(object):
           for quality, price in prices[item[u"defindex"]].items():
             if item[u"defindex"] in self.items:
               if quality in self.items[item[u"defindex"]]:
+                self.Bot.Log(price["name"] + " updated from " + str(RItem.value) + " to " + str(price["value"]))
                 RItem.value = price["value"]
                 RItem.timestamp = price["updated"]
                 continue
@@ -355,6 +353,7 @@ class Schema(object):
               imageFile.close()
             RItem = db.Items(description = price["name"], value = price["value"], defindex = item[u"defindex"], type = kind, quality = quality, timestamp = price["updated"])
             db.Session.add(RItem)
+            self.Bot.Log(price["name"] + " added.")
     db.Session.commit()
     self.load()
     browser.open("http://staging.saloon.tf/api/refreshsession")
