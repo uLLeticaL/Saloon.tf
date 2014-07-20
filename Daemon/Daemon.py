@@ -82,8 +82,7 @@ class ServerProtocol(WebSocketServerProtocol):
     if not isBinary:
       message = payload.decode('utf8')
       message = json.loads(message)
-      print message
-      if message[0] == u"hello":
+      if message[0] == u"inventory":
         steamID = int(message[1])
         RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
         if RUser:
@@ -93,6 +92,14 @@ class ServerProtocol(WebSocketServerProtocol):
             Communicate.send(["inventory", Handler.inventory(steamID)], steamID)
           else:
             Communicate.send(["tradeLink", "new"], steamID)
+      elif message[0] == u"payout":
+        steamID = int(message[1])
+        RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+        if RUser:
+          Handler = Handlers[RUser.bot]
+          Communicate.add(self, steamID)
+          print 1
+          Handler.Payout(steamID, message[2])
       elif message[0] == u"tradeLink":
         steamID = Communicate.getSteamID(self)
         match = re.match(u"http:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=[0-9]+&token=([a-zA-Z0-9]+)", message[1])

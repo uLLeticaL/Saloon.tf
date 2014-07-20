@@ -1,4 +1,5 @@
 from mechanize import Browser, HTTPError, URLError
+from datetime import datetime
 import time, json, threading, colorama as color
 import urllib
 from collections import defaultdict, Counter
@@ -78,17 +79,16 @@ class Handler(object):
       return captchaCode
 
   def Bet(self, steamID, userID, matchID, teamID, items):
-    return self.OBet(self, steamID, userID, matchID, teamID, items)
+    return self.OBet(self, steamID, matchID, teamID, items)
 
   class OBet(object):
-    def __init__(self, Handler, steamID, userID, matchID, teamID, items):
+    def __init__(self, Handler, steamID, matchID, teamID, items):
       self.Handler = Handler
       self.Bot = Handler.Bot
       self.Communicate = Handler.Communicate
       self.Schema = Handler.Schema
       self.Partner = self.Bot.Community().Friend(steamID)
       self.steamID = steamID
-      self.userID = userID
       self.matchID = matchID
       self.teamID = teamID
       self.items = items
@@ -96,7 +96,7 @@ class Handler(object):
       self.timeouted = False
 
       self.RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
-      self.RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == userID, db.Bets.match == matchID)).first()
+      self.RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == self.RUser.id, db.Bets.match == matchID)).first()
       self.increase = False
       if self.RBet:
         self.increase = True
@@ -116,7 +116,7 @@ class Handler(object):
           "assetid": str(assetID)
         })
 
-      self.offerID = self.Bot.Trade().MakeOffer(self.Partner, [], itemsToReceive, "Thanks for betting with Saloon.tf!")
+      self.offerID = self.Bot.Trade().sendOffer(self.Partner, [], itemsToReceive, "Thanks for betting with Saloon.tf!")
       if self.offerID:
         self.Communicate.send(["tradeOffer", self.offerID], self.steamID)
         self.monitor(self)
@@ -147,7 +147,7 @@ class Handler(object):
       RBetsTotal = db.Session.query(db.BetsTotal).filter(and_(db.BetsTotal.match == self.matchID, db.BetsTotal.team ==self.teamID)).first()
       # Add self.RBet in case it's not an increase
       if not self.increase:
-        self.RBet = db.Bets(user = self.userID, match = self.matchID, team = self.teamID, groups = [], items = [], value = 0)
+        self.RBet = db.Bets(user = self.RUser.id, match = self.matchID, team = self.teamID, groups = [], items = [], value = 0, created = datetime.now(), updated = datetime.now())
         db.Session.add(self.RBet)
       
       # Convert PostgreSQL's multidimensional array to Counter dictionary
@@ -191,6 +191,7 @@ class Handler(object):
         if quality in usersGroups[defindex]:
           orderedGroups.append([defindex, quality, usersGroups[defindex][quality]])
       self.RBet.groups = orderedGroups
+      self.RBet.updated = datetime.now()
       
       # Merge betGroups with totalGroups and save result in database
       orderedGroups = []
@@ -203,7 +204,7 @@ class Handler(object):
       RBetsTotal.groups = orderedGroups
       
       db.Session.commit()
-      self.Bot.browser.open("http://staging.saloon.tf/api/refreshsession")
+      self.Bot.browser.open("http://localhost:81/api/refreshsession")
       self.Communicate.send(["accepted", True], self.steamID)
       return True
 
@@ -211,6 +212,34 @@ class Handler(object):
       self.timeouted = True
       offer.cancel()
       self.Communicate.close(self.steamID)
+
+  def Payout(self, steamID, matchID):
+      Partner = self.Bot.Community().Friend(steamID)
+      RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
+      RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == RUser.id, db.Bets.match == matchID, db.Bets.status == 1)).first()
+      if RBet:
+        Partner.token = RUser.token
+        items = RBet.items + RBet.wonItems
+        itemsToGive = []
+        for assetID in items:
+          itemsToGive.append({
+            "appid": 440,
+            "contextid": 2,
+            "amount": 1,
+            "assetid": str(assetID)
+          })
+        offerID = self.Bot.Trade().sendOffer(Partner, itemsToGive, [], "Thanks for betting with Saloon.tf!")
+        if offerID:
+          self.Communicate.send(["tradeOffer", offerID], steamID)
+          RBet.offerID = offerID
+          RBet.status = 2
+          db.Session.commit()
+          self.Bot.browser.open("http://localhost:81/api/refreshsession")
+        else:
+          self.Communicate.send(["tradeOffer", False], steamID)
+      else:
+        self.Communicate.send(["payout", "error"], steamID)
+
 
   def inventory(self, steamID):
     RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()

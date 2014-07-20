@@ -242,7 +242,7 @@ class Bot(object):
     def __init__(self, bot):
       self.Bot = bot   
 
-    def MakeOffer(self, Partner, itemsToGive, itemsToReceive, message):
+    def sendOffer(self, Partner, itemsToGive, itemsToReceive, message):
       createParams = {}
       parameters = {"partner": str(Partner.SID.toAccount())}
       if Partner.token:
@@ -283,6 +283,7 @@ class Bot(object):
         except (HTTPError, URLError) as error:
           parameters = {"get_sent_offers": 1}
           response = self.Bot.API("IEconService/GetTradeOffers/v0001", parameters)
+          print response
           offers = response[u"response"][u"trade_offers_sent"]
           for offer in offers:
             if offer[u"time_created"] >= requestTime:

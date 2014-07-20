@@ -101,34 +101,40 @@
           <a class="btn btn-md btn-primary" data-toggle="modal" data-target="#addMatch-modal"><i class="fa fa-plus-circle"></i> Add</a>
         </div>
       </div>
-      %for id, match in enumerate(c.matches):
-        <div class="well match match-${match["id"]}">
-          <div class="row">
-            <div class="col-md-9">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="team-0-avatar">
-                    <img class="team-avatar" src="/images/teams/${match["team1"]["id"]}.jpg">
+      %if c.matches:
+        %for id, match in enumerate(c.matches):
+          <div class="well match match-${match["id"]}">
+            <div class="row">
+              <div class="col-md-9">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="team-0-avatar">
+                      <img class="team-avatar" src="/images/teams/${match["team1"]["id"]}.jpg">
+                    </div>
+                    <h3 class="team-0">${match["team1"]["name"]}</h3>
                   </div>
-                  <h3 class="team-0">${match["team1"]["name"]}</h3>
-                </div>
-                <div class="col-md-6">
-                  <div class="team-1-avatar">
-                    <img class="team-avatar" src="/images/teams/${match["team2"]["id"]}.jpg">
+                  <div class="col-md-6">
+                    <div class="team-1-avatar">
+                      <img class="team-avatar" src="/images/teams/${match["team2"]["id"]}.jpg">
+                    </div>
+                    <h3 class="team-1">${match["team2"]["name"]}</h3>
                   </div>
-                  <h3 class="team-1">${match["team2"]["name"]}</h3>
                 </div>
               </div>
-            </div>
-            <div class="col-md-3">
-              <div class="btn-group btn-block">
-                <button class="btn btn-md btn-primary editMatch-button" data-json="${match["json"]}"><i class="fa fa-pencil"></i> Edit</button>
-                <button class="btn btn-md btn-primary removeMatch-button" data-id="${match["id"]}"><i class="fa fa-times-circle"></i> Remove</button>
+              <div class="col-md-3">
+                <div class="btn-group btn-block">
+                  <button class="btn btn-md btn-primary editMatch-button" data-json="${match["json"]}"><i class="fa fa-pencil"></i> Edit</button>
+                  <button class="btn btn-md btn-primary removeMatch-button" data-id="${match["id"]}"><i class="fa fa-times-circle"></i> Remove</button>
+                </div>
               </div>
             </div>
           </div>
+        %endfor
+      %else:
+        <div class="well text-center">
+          Please use the top toolbar to add a new fixture.
         </div>
-      %endfor
+      %endif
     </div>
   </div>
 </div>

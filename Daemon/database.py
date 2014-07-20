@@ -1,4 +1,6 @@
-from sqlalchemy import Table, MetaData, Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Table, MetaData, Column, ForeignKey, Integer, String, Boolean, BigInteger
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.types import DateTime
 from sqlalchemy.orm import mapper, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import or_
@@ -14,6 +16,7 @@ class Bots(Base):
   steamLogin = Column(String)
   steamPassword = Column(String)
   steamAPI = Column(String)
+  backpackAPI = Column(String)
   steamID = Column(String)
   tradeLink = Column(String)
 
@@ -42,15 +45,19 @@ class Matches(Base):
   __tablename__ = 'matches'
   id = Column(Integer, ForeignKey('betsTotal.match'), primary_key=True)
   league = Column(Integer, ForeignKey('leagues.id'))
-  team1 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
-  team2 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
-  stream = Column(String)
-  won = Column(Integer)
   League = relationship("Leagues")
+  team1 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
   Team1 = relationship("Teams", foreign_keys=team1)
-  Team2 = relationship("Teams", foreign_keys=team2)
   BetsTotal1 = relationship("BetsTotal", primaryjoin="and_(Matches.id == BetsTotal.match, Matches.team1 == BetsTotal.team)")
+  team2 = Column(Integer, ForeignKey('teams.id'), ForeignKey('betsTotal.team'))
+  Team2 = relationship("Teams", foreign_keys=team2)
   BetsTotal2 = relationship("BetsTotal", primaryjoin="and_(Matches.id == BetsTotal.match, Matches.team2 == BetsTotal.team)")
+  stream = Column(String)
+  won = Column(Integer, default = 0)
+  status = Column(Integer, default = 0)
+  time = Column(Integer, default = 0)
+  points1 = Column(Integer, default = 0)
+  points2 = Column(Integer, default = 0)
 
 class Leagues(Base):
   __tablename__ = 'leagues'
@@ -74,27 +81,54 @@ class BetsTotal(Base):
   id = Column(Integer, primary_key=True)
   match = Column(Integer)
   team = Column(Integer)
-  keys = Column(Integer, default=0)
-  metal = Column(Integer, default=0)
+  groups = Column(ARRAY(Integer))
+  value = Column(Integer)
 
 class Bets(Base):
   __tablename__ = "bets"
   id = Column(Integer, primary_key=True)
-  user = Column(Integer)
+  user = Column(Integer, ForeignKey('users.id'))
+  User = relationship("Users")
   match = Column(Integer)
   team = Column(Integer)
-  keys = Column(Integer, default=0)
-  metal = Column(Integer, default=0)
+  groups = Column(ARRAY(Integer), default = [])
+  items = Column(ARRAY(BigInteger), default = [])
+  value = Column(Integer, default = 0)
+  status = Column(Integer, default = 0)
+  wonGroups = Column(ARRAY(Integer), default = [])
+  wonItems = Column(ARRAY(BigInteger), default = [])
+  offerID = Column(Integer)
+  created = Column(DateTime)
+  updated = Column(DateTime)
+
+class BetsDetailed(Base):
+  __tablename__ = "bets"
+  __table_args__ = {'extend_existing': True}
+  id = Column(Integer, primary_key=True)
+  user = Column(Integer, ForeignKey('users.id'))
+  User = relationship("Users")
+  match = Column(Integer, ForeignKey('matches.id'))
+  Match = relationship("Matches")
+  team = Column(Integer, ForeignKey('teams.id'))
+  Team = relationship("Teams")
+  groups = Column(ARRAY(Integer), default = [])
+  items = Column(ARRAY(BigInteger), default = [])
+  value = Column(Integer, default = 0)
+  wonGroups = Column(ARRAY(Integer), default = [])
+  wonItems = Column(ARRAY(BigInteger), default = [])
+  offerID = Column(Integer)
+  created = Column(DateTime)
+  updated = Column(DateTime)
 
 class Items(Base):
   __tablename__ = "items"
   id = Column(Integer, primary_key=True)
-  name = Column(String)
-  metal = Column(Boolean)
+  description = Column(String)
   defindex = Column(Integer)
-  instanceID = Column(Integer)
-  classID = Column(Integer)
   value = Column(Integer)
+  type = Column(Integer)
+  quality = Column(Integer)
+  timestamp = Column(Integer)
 
 class Countries(Base):
   __tablename__ = 'countries'
@@ -102,7 +136,7 @@ class Countries(Base):
   name = Column(String)
 
 from sqlalchemy import create_engine
-engine = create_engine("postgresql://postgres:msm700thr@localhost:5432/Saloon.tf", echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
+engine = create_engine("postgresql://user:password@localhost:5432/Saloon.tf", echo = False, echo_pool = False, isolation_level="READ UNCOMMITTED")
 
 Base.metadata.bind = engine
 

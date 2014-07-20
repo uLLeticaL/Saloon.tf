@@ -8,8 +8,10 @@
         var steamID = "${c.user["steamid"]}";
       %endif
     </script>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.ico">
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.290" />
+    <link rel="stylesheet" type="text/css" href="/stylesheet.css?v=0.2.322" />
   </head>
   <body class="${c.current}">
     <header>
@@ -45,6 +47,6 @@
       </div><!-- /.container-fluid -->
     </nav>
     ${self.body()}
-    <script type="text/javascript" src="/javascript.js?v=0.2.290" /></script>
+    <script type="text/javascript" src="/javascript.js?v=0.2.322" /></script>
   </body>
 </html>

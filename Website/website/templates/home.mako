@@ -1,6 +1,7 @@
 <%namespace name="partials" file="partials.mako"/>
 <%inherit file="/base.mako" />
 <%def name="head_tags()">
+  <title>Saloon.tf &bull; Home</title>
   <!-- add some head tags here -->
 </%def>
 <div class="modal fade" id="inventory-modal">

@@ -41,6 +41,7 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         options: {
+          style: "compresses",
           banner: '/*! <%= pkg.name %>\'s CSS. Generated at <%= grunt.template.today("yyyy-mm-dd") %> */\n'
         },
         files: {
