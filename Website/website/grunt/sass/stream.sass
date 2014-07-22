@@ -1,0 +1,97 @@
+body
+  .stream-row
+    position: relative
+    margin: 15px 0
+    overflow: hidden
+    .stream
+      width: 100%
+      background-color: $design-panel
+      position: relative
+      .loading
+        position: absolute
+        top: 50%
+        left: 50%
+        margin-left: -62px
+        margin-top: -9px
+      object
+        position: absolute
+        top: 0
+        left: 0
+        bottom: 0
+        height: 100%
+        width: 100%
+        border: 0
+    &.has-panel
+      .stream
+        position: absolute
+        top: 0
+        left: 0
+        bottom: 0
+        width: 66.66666%
+        @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max)
+          width: 80%
+        @media screen and (max-width: $screen-sm-max)
+          width: 0%
+        border-radius: 5px 0px 0px 5px
+        border: 1px solid $list-group-border
+        border-right: 0
+      .logs
+        @extend .list-group
+        width: 33.333334%
+        @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max)
+          width: 20%
+        @media screen and (max-width: $screen-sm-max)
+          width: 100%
+        float: right
+        text-align: center
+        border-radius: 0px 5px 5px 0px
+        border: 1px solid $list-group-border
+        border-left: 0
+        margin-bottom: 0
+        .logs-header
+          background-color: $design-object
+          border-top-left-radius: 0px
+          h3
+            margin: 0
+          .avatar-sm
+            margin-left: 4px
+            margin-right: 4px
+        .logs-item
+          &.active
+            background-color: $component-active-bg
+            border-color: $component-active-bg
+          padding: 5px
+          background-color: $design-panel
+          border-bottom-left-radius: 0px
+          min-height: 60px
+          .logs-kill
+            display: inline-block
+            clear: both
+            .logs-weapon
+              display: block
+              float: left
+              margin: 0 5px
+            .logs-player
+              display: block
+              float: left
+              padding: 10px 0
+              span
+                display: inline-block
+                margin-bottom: 3px
+              .avatar-sm
+                vertical-align: bottom
+                margin-right: 4px
+          .logs-capture
+            padding: 11px 0
+            font-size: 1.05em
+            font-weight: bold
+        @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max)
+          .logs-item
+            display: none
+          .logs-item:nth-child(-n+4)
+            display: block
+            min-height: 134px
+            .logs-weapon, .logs-player
+              float: none
+            .logs-capture
+              padding: 24px 0

@@ -23,17 +23,17 @@ body
         img
           display: table-cell
           max-width: 120px
+          border-radius: 33.3333%
         .details
           display: table-cell
           vertical-align: top
-          padding: 0px 10px
+          padding: 5.5px 15px
           color: $design-hl
           h2, h3
             margin: 0
           .specifics
             display: inline-block
             font-size: $font-size-h3
-            text-align: left
             p
               margin: 10px 0 0 0
               line-height: 1
@@ -46,10 +46,18 @@ body
         .details
           .specifics
             float: left
+            text-align: left
+        img
+          margin-right: 10px
       .team-1
         float: right
+        img
+          margin-left: 10px
         @media screen and (max-width: $screen-xs-max)
           float: left
+          img
+            margin-left: 0px
+            margin-right: 10px
         h2, h3
           text-align: right
           @media screen and (max-width: $screen-xs-max)
@@ -59,8 +67,10 @@ body
             float: right
           .specifics
             float: right
+            text-align: right
             @media screen and (max-width: $screen-xs-max)
               float: left
+              text-align: left
   .carousel-inventory-wrapper
     .carousel-inventory-control.carousel-control
       width: 63px
@@ -105,3 +115,10 @@ body
   .inventory
     @extend .clearfix
     display: inline-block
+.bet-details
+  .panel-heading
+    overflow: hidden
+  .heading-won
+    padding: 5px 5px 5px 15px
+    span
+      line-height: 36px
