@@ -204,7 +204,7 @@ class Handler(object):
       RBetsTotal.groups = orderedGroups
       
       db.Session.commit()
-      self.Bot.browser.open("http://localhost:81/api/refreshsession")
+      self.Bot.browser.open("http://staging.saloon.tf/api/refreshsession")
       self.Communicate.send(["accepted", True], self.steamID)
       return True
 
@@ -234,7 +234,7 @@ class Handler(object):
           RBet.offerID = offerID
           RBet.status = 2
           db.Session.commit()
-          self.Bot.browser.open("http://localhost:81/api/refreshsession")
+          self.Bot.browser.open("http://staging.saloon.tf/api/refreshsession")
         else:
           self.Communicate.send(["tradeOffer", False], steamID)
       else:

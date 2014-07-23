@@ -3,6 +3,7 @@ import sys, re, time, json, gmail, colorama as color
 from sqlalchemy.dialects.postgresql import array
 from sqlalchemy import and_
 from SteamBot import Handler
+import Logs
 import database as db
 
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
@@ -22,7 +23,6 @@ class OCommunicate(object):
   def send(self, array, steamID):
     if steamID in self.listeners:
       self.listeners[steamID].sendMessage(json.dumps(array))
-      return json.dumps(array)
 
   def sendListenjs(self, array):
     if self.listenjs:
@@ -55,6 +55,26 @@ Handlers = {}
 for RBot in RBots:
   Handlers[RBot.id] = Handler(RBot, Communicate)
 
+class OBroadcast(object):
+  def __init__(self):
+    self.listeners = {}
+
+  def addMatch(self, matchID):
+    if matchID not in self.listeners:
+      self.listeners[matchID] = []
+
+  def broadcast(self, array, matchID):
+    for listener in self.listeners[matchID]:
+      listener.sendMessage(json.dumps(array))
+
+  def log(self, match, message):
+    Communicate.log("Logs.py", "#" + match, message)
+
+Broadcast = OBroadcast()
+BroadcastHandlers = {
+  Logs.Handler(Broadcast, reactor)
+}
+
 def shutdown():
   Communicate.log("Daemon.py", "Communicate", "Trying to shutdown Handlers")
   for Handler in Handlers.values():
@@ -82,7 +102,12 @@ class ServerProtocol(WebSocketServerProtocol):
     if not isBinary:
       message = payload.decode('utf8')
       message = json.loads(message)
-      if message[0] == u"inventory":
+      print message
+      if message[0] == u"tuneIn":
+        if not message[1] in Broadcast.listeners:
+          Broadcast.listeners[message[1]] = []
+        Broadcast.listeners[message[1]].append(self)
+      elif message[0] == u"inventory":
         steamID = int(message[1])
         RUser = db.Session.query(db.Users).filter(db.Users.steamID == steamID).first()
         if RUser:
