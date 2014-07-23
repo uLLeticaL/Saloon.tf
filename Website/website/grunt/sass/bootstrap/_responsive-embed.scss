@@ -22,6 +22,11 @@
     border: 0;
   }
 
+  // Modifier class for 16:10 aspect ratio
+  &.embed-responsive-16by9-twitch {
+    padding-bottom: 60%;
+  }
+
   // Modifier class for 16:9 aspect ratio
   &.embed-responsive-16by9 {
     padding-bottom: 56.25%;

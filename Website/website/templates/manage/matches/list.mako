@@ -29,25 +29,50 @@
       </div>
       <div class="modal-body">
         <form role="form" id="addMatch-form" method="POST" action="/manage/matches/${c.league["id"]}/add/" enctype="multipart/form-data">
-          <div class="form-group">
-            <label for="team1">Team 1</label>
-            <select name="team1" class="form-control">
-              %for team in c.teams:
-                <option value="${team["id"]}">${team["name"]}</option>
-              %endfor
-            </select>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="team1">Team 1</label>
+                <select name="team1" class="form-control">
+                  %for team in c.teams:
+                    <option value="${team["id"]}">${team["name"]}</option>
+                  %endfor
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="team2">Team 2</label>
+                <select name="team2" class="form-control">
+                  %for team in c.teams:
+                    <option value="${team["id"]}">${team["name"]}</option>
+                  %endfor
+                </select>
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <label for="team2">Team 2</label>
-            <select name="team2" class="form-control">
-              %for team in c.teams:
-                <option value="${team["id"]}">${team["name"]}</option>
-              %endfor
-            </select>
+            <label for="stream">Channel</label>
+            <input name="channel" class="form-control" type="text">
           </div>
           <div class="form-group">
-            <label for="stream">Stream</label>
-            <input name="stream" class="form-control" type="text">
+            <label for="ip">IP</label>
+            <div class="row">
+              <div class="col-sm-8">
+                <input name="ip" class="form-control" type="text">
+              </div>
+              <div class="col-sm-4">
+                <input name="port" class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="rcon">RCON</label>
+            <input name="rcon" class="form-control" type="text">
+          </div>
+          <div class="form-group">
+            <label for="logsecret">Logsecret</label>
+            <input name="logsecret" class="form-control" type="text">
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -64,25 +89,50 @@
       </div>
       <div class="modal-body">
         <form role="form" id="editMatch-form">
-          <div class="form-group">
-            <label for="team1">Team 1</label>
-            <select name="team1" class="form-control">
-              %for team in c.teams:
-                <option value="${team["id"]}">${team["name"]}</option>
-              %endfor
-            </select>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="team1">Team 1</label>
+                <select name="team1" class="form-control">
+                  %for team in c.teams:
+                    <option value="${team["id"]}">${team["name"]}</option>
+                  %endfor
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="team2">Team 2</label>
+                <select name="team2" class="form-control">
+                  %for team in c.teams:
+                    <option value="${team["id"]}">${team["name"]}</option>
+                  %endfor
+                </select>
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <label for="team2">Team 2</label>
-            <select name="team2" class="form-control">
-              %for team in c.teams:
-                <option value="${team["id"]}">${team["name"]}</option>
-              %endfor
-            </select>
+            <label for="stream">Channel</label>
+            <input name="channel" class="form-control" type="text">
           </div>
           <div class="form-group">
-            <label for="stream">Stream</label>
-            <input name="stream" class="form-control" type="text">
+            <label for="ip">IP</label>
+            <div class="row">
+              <div class="col-sm-8">
+                <input name="ip" class="form-control" type="text">
+              </div>
+              <div class="col-sm-4">
+                <input name="port" class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="rcon">RCON</label>
+            <input name="rcon" class="form-control" type="text">
+          </div>
+          <div class="form-group">
+            <label for="logsecret">Logsecret</label>
+            <input name="logsecret" class="form-control" type="text">
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>

@@ -44,9 +44,19 @@ $ ->
     bot = undefined
     bet = false
     payout = false
+    logTimers = []
+    logElements = []
     socket = new WebSocket("ws://direct.saloon.tf:9000")
 
     socket.onopen = ->
+      console.log $(".has-panel").length
+      if $(".has-panel").length > 0
+        console.log $(".has-panel").length
+        json = JSON.stringify([
+          "tuneIn"
+          betID
+        ])
+        socket.send json
       return
 
     socket.onclose = ->
@@ -56,8 +66,55 @@ $ ->
 
     socket.onmessage = (event) ->
       array = JSON.parse(event.data)
-      console.log array
-      if array[0] is "tradeLink"
+      if array[0] is "log"
+        if array[1] is "kill"
+          setTimeout (->
+              newTimers = []
+              for index, timer in logTimers
+                clearTimeout(timer)
+                timeout = setTimeout (->
+                    logElements[index].find(".logs-kill").addClass("animated fadeOut")
+                    return
+                  ), 3000
+                newTimers.push timeout
+              logTimers = newTimers
+              player1 = array[2]
+              player2 = array[3]
+
+              $(".logs .logs-header").after
+              $element = $ "<div class=\"list-group-item logs-item\">
+                  <div class=\"logs-kill animated fadeIn\">
+                    <span class=\"logs-player\">
+                      <img class=\"avatar-sm\" src=\"/images/teams/" + player1[0] + ".jpg\"> <span>" + player1[1] + "</span>
+                    </span>
+                    <span class=\"logs-weapon sprite-killicon-" + array[4] + "\">
+                      <span class=\"sprite-killicon-display\"></span>
+                    </span>
+                    <span class=\"logs-player\">
+                      <img class=\"avatar-sm\" src=\"/images/teams/" + player2[0] + ".jpg\"> <span>" + player2[1] + "</span>
+                    </span>
+                  </div>
+                </div>"
+              timeout = setTimeout (->
+                  $element.find(".logs-kill").addClass("animated fadeOut")
+                  return
+                ), 3000
+              logTimers.push timeout
+              logElements.push $element
+              $(".logs .logs-header").after $element
+              $(".logs .logs-item").last().remove()
+            ), 17000
+        else if array[1] is "capture"
+          $(".logs .logs-header").after "
+            <div class=\"list-group-item logs-item active\">
+              <div class=\"logs-capture\">
+                <img class=\"avatar-sm\" src=\"/images/teams/" + array[2] + ".jpg\"> 
+                " + teams[array[2]]["name"] + " captured a control point!
+              </div>
+            </div>"
+          $(".logs .logs-item").last().remove()
+
+      else if array[0] is "tradeLink"
         if array[1] is "new"
           if bet
             $("#inventory-modal .modal-body").append "
@@ -98,9 +155,9 @@ $ ->
           </div>
         "
         $("#carousel-inventory").carousel {inverval: false}
-        $("#carousel-inventory").carousel 'pause'
-        $("#carousel-inventory").on 'slid.bs.carousel', ->
-          $(this).carousel 'pause'
+        $("#carousel-inventory").carousel "pause"
+        $("#carousel-inventory").on "slid.bs.carousel", ->
+          $(this).carousel "pause"
           return
 
         count = 0

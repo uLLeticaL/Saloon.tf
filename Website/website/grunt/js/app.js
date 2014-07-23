@@ -1,19 +1,29 @@
 (function() {
   $(function() {
-    var bot, loadBets, match, offset, socket, team;
+    var bet, bot, loadBets, logElements, logTimers, match, offset, payout, socket, team;
     if (page === "bet") {
       offset = 0;
       loadBets = function() {
-        $.getJSON("/api/bet/" + betID + "/bets/offset/" + offset, function(data) {
-          var $element, bet, i, itemsGroup, number, _i, _j, _len, _ref, _ref1;
+        $.getJSON("/api/bet/" + betID + "/bets/offset/" + offset + "/", function(data) {
+          var $element, bet, i, itemsGroup, number, _i, _j, _k, _l, _len, _len1, _ref, _ref1, _ref2, _ref3;
           console.log(data);
           for (number in data) {
             bet = data[number];
             $element = $("<div class=\"bet-details panel panel-default animated fadeInUp\"> <div class=\"panel-heading\">" + bet["user"]["name"] + " placed a bet on <strong>" + bet["team"]["name"] + "</strong> </div> <div class=\"panel-body\"> <div class=\"inventory-wrapper\"> <div class=\"inventory\"> </div> </div> </div> </div>");
-            _ref = bet["groups"];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              itemsGroup = _ref[_i];
-              for (i = _j = 0, _ref1 = itemsGroup[2]; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+            if (bet["status"] === 1 || bet["status"] === 2) {
+              $element.find(".panel-heading").append(" and won!");
+              _ref = bet["wonGroups"];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                itemsGroup = _ref[_i];
+                for (i = _j = 0, _ref1 = itemsGroup[2]; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+                  $element.find(".inventory").append("<div class=\"steam-item quality-" + itemsGroup[1] + "\" style=\"background-image:url('/images/items/" + itemsGroup[0] + ".png');\"><div class=\"value\">New</div></div>");
+                }
+              }
+            }
+            _ref2 = bet["groups"];
+            for (_k = 0, _len1 = _ref2.length; _k < _len1; _k++) {
+              itemsGroup = _ref2[_k];
+              for (i = _l = 0, _ref3 = itemsGroup[2]; 0 <= _ref3 ? _l < _ref3 : _l > _ref3; i = 0 <= _ref3 ? ++_l : --_l) {
                 $element.find(".inventory").append("<div class=\"steam-item quality-" + itemsGroup[1] + "\" style=\"background-image:url('/images/items/" + itemsGroup[0] + ".png');\"></div>");
               }
             }
@@ -31,31 +41,70 @@
       team = void 0;
       match = void 0;
       bot = void 0;
+      bet = false;
+      payout = false;
+      logTimers = [];
+      logElements = [];
       socket = new WebSocket("ws://direct.saloon.tf:9000");
-      socket.onopen = function() {};
+      socket.onopen = function() {
+        var json;
+        console.log($(".has-panel").length);
+        if ($(".has-panel").length > 0) {
+          console.log($(".has-panel").length);
+          json = JSON.stringify(["tuneIn", betID]);
+          socket.send(json);
+        }
+      };
       socket.onclose = function() {
         $("#inventory-modal").modal("hide");
+        $("#payout-modal").modal("hide");
       };
       socket.onmessage = function(event) {
         var $item, array, callback, count, id, inventory, item, itemsGroup, slide, _i, _len, _ref;
         array = JSON.parse(event.data);
-        console.log(array);
-        $(".connection-status").html("<i class=\"fa fa-check\"></i> Connected");
-        if (array[0] === "hello") {
-          bot = array[1];
-          $(".connection-status").html("<i class=\"fa fa-check\"></i> Connected");
-          return $("#inventory-modal .modal-body").append("<p class=\"authentication-status\"> <i class=\"fa fa-exclamation-circle\"></i> Bot sent you an invintation</a> </p>");
+        if (array[0] === "log") {
+          if (array[1] === "kill") {
+            return setTimeout((function() {
+              var $element, index, newTimers, player1, player2, timeout, timer, _i, _len;
+              newTimers = [];
+              for (timer = _i = 0, _len = logTimers.length; _i < _len; timer = ++_i) {
+                index = logTimers[timer];
+                clearTimeout(timer);
+                timeout = setTimeout((function() {
+                  logElements[index].find(".logs-kill").addClass("animated fadeOut");
+                }), 3000);
+                newTimers.push(timeout);
+              }
+              logTimers = newTimers;
+              player1 = array[2];
+              player2 = array[3];
+              $(".logs .logs-header").after;
+              $element = $("<div class=\"list-group-item logs-item\"> <div class=\"logs-kill animated fadeIn\"> <span class=\"logs-player\"> <img class=\"avatar-sm\" src=\"/images/teams/" + player1[0] + ".jpg\"> <span>" + player1[1] + "</span> </span> <span class=\"logs-weapon sprite-killicon-" + array[4] + "\"> <span class=\"sprite-killicon-display\"></span> </span> <span class=\"logs-player\"> <img class=\"avatar-sm\" src=\"/images/teams/" + player2[0] + ".jpg\"> <span>" + player2[1] + "</span> </span> </div> </div>");
+              timeout = setTimeout((function() {
+                $element.find(".logs-kill").addClass("animated fadeOut");
+              }), 3000);
+              logTimers.push(timeout);
+              logElements.push($element);
+              $(".logs .logs-header").after($element);
+              return $(".logs .logs-item").last().remove();
+            }), 17000);
+          } else if (array[1] === "capture") {
+            $(".logs .logs-header").after("<div class=\"list-group-item logs-item active\"> <div class=\"logs-capture\"> <img class=\"avatar-sm\" src=\"/images/teams/" + array[2] + ".jpg\">" + teams[array[2]]["name"] + " captured a control point! </div> </div>");
+            return $(".logs .logs-item").last().remove();
+          }
         } else if (array[0] === "tradeLink") {
           if (array[1] === "new") {
-            $("#inventory-modal .modal-body").append("<div class=\"form-group tradelink-form\"> <label for=\"tradelink-input\"><i class=\"fa fa-exclamation-circle\"></i> Please paste your tradeoffers link below</label> <input class=\"form-control tradelink-input\" name=\"tradelink-input\"> </div>");
-            return $(".tradelink-input").on("keyup", function(e) {
-              var json;
-              $(this).parent().removeClass("has-error");
-              if (e.which === 13) {
-                json = JSON.stringify(["tradeLink", $(".tradelink-input").val()]);
-                socket.send(json);
-              }
-            });
+            if (bet) {
+              $("#inventory-modal .modal-body").append("<div class=\"form-group tradelink-form\"> <label for=\"tradelink-input\"><i class=\"fa fa-exclamation-circle\"></i> Please paste your tradeoffers link below</label> <input class=\"form-control tradelink-input\" name=\"tradelink-input\"> </div>");
+              return $("#inventory-modal .tradelink-input").on("keyup", function(e) {
+                var json;
+                $(this).parent().removeClass("has-error");
+                if (e.which === 13) {
+                  json = JSON.stringify(["tradeLink", $(".tradelink-input").val()]);
+                  socket.send(json);
+                }
+              });
+            }
           } else if (array[1] === "wrong") {
             return $(".tradelink-form").addClass("has-error");
           }
@@ -65,9 +114,9 @@
           $("#carousel-inventory").carousel({
             inverval: false
           });
-          $("#carousel-inventory").carousel('pause');
-          $("#carousel-inventory").on('slid.bs.carousel', function() {
-            $(this).carousel('pause');
+          $("#carousel-inventory").carousel("pause");
+          $("#carousel-inventory").on("slid.bs.carousel", function() {
+            $(this).carousel("pause");
           });
           count = 0;
           slide = 0;
@@ -101,32 +150,51 @@
             $(".steam-item.active").each(function() {
               return items.push($(this).data("assetid"));
             });
-            console.log(items);
-            $("#inventory-modal .modal-body").html("<p class=\"connection-status\"><i class=\"fa fa-check\"></i> Connected</p> <p class=\"inventory-status\"><i class=\"fa fa-check\"></i> Inventory</p> <p class=\"bet-status\"><i class=\"fa fa-spin fa-spinner\"></i> Sending tradeoffer</p>");
+            $("#inventory-modal .modal-body").html("<p class=\"connection-status\"><i class=\"fa fa-check\"></i> Connected</p> <p class=\"inventory-status\"><i class=\"fa fa-check\"></i> Inventory</p> <p class=\"bet-status\"><i class=\"fa fa-spin fa-circle-o-notch\"></i> Sending tradeoffer</p>");
             json = JSON.stringify(["bet", match, team, items]);
             socket.send(json);
           });
         } else if (array[0] === "tradeOffer") {
-          if (array[1] === false) {
-            return $(".bet-status").html("<i class=\"fa fa-times\"></i> Couldn't send the tradeoffer.");
-          } else {
-            $(".bet-status").html("<p><i class=\"fa fa-check\"></i> Tradeoffer</p> <div class=\"progress\"> <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"> </div> </div>");
-            $("#inventory-modal .modal-body .progress-bar").addClass("countdown");
-            setTimeout((function() {
-              $("#inventory-modal .modal-body .progress-bar").css("width", "0%");
-            }), 1000);
-            return $("#inventory-modal .modal-body").append("<a class=\"btn btn-block btn-primary btn-tradeoffer\" href=\"http://steamcommunity.com/tradeoffer/" + array[1] + "\" target=\"_blank\"><i class=\"fa fa-refresh\"></i> Trade Offer</a>");
+          if (bet) {
+            if (array[1] === false) {
+              return $("#inventory-modal .bet-status").html("<i class=\"fa fa-times\"></i> Couldn't send the tradeoffer.");
+            } else {
+              $("#inventory-modal .bet-status").html("<p><i class=\"fa fa-check\"></i> Tradeoffer</p> <div class=\"progress\"> <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"> </div> </div>");
+              $("#inventory-modal .modal-body .progress-bar").addClass("countdown");
+              setTimeout((function() {
+                $("#inventory-modal .modal-body .progress-bar").css("width", "0%");
+              }), 1000);
+              return $("#inventory-modal .modal-body").append("<a class=\"btn btn-block btn-primary btn-tradeoffer\" href=\"http://steamcommunity.com/tradeoffer/" + array[1] + "\" target=\"_blank\"><i class=\"fa fa-refresh\"></i> Trade Offer</a>");
+            }
+          } else if (payout) {
+            if (array[1] === false) {
+              $(".btn-payout").html("<i class=\"fa fa-times-circle\"></i> Payout");
+              return payout = false;
+            } else {
+              $(".btn-payout").remove();
+              $(".heading-won").append("<a href=\"http://steamcommunity.com/tradeoffer/" + array[1] + "\" target=\"_blank\" class=\"btn btn-md btn-primary btn-payout pull-right\"><i class=\"fa fa-refresh\"></i> Trade</a>");
+              return payout = false;
+            }
           }
         } else if (array[0] === "accepted") {
-          $(".btn-tradeoffer").remove();
-          if (array[1] === false) {
-            return $(".bet-status").html("<i class=\"fa fa-times\"></i> You were too slow and the time has expired.");
-          } else {
-            $(".bet-status").html("<i class=\"fa fa-heart\"></i> It was a pleasure to bet with you!");
-            callback = function() {
-              return window.open("http://" + window.location.host + "/bet/" + match + "/", "_self");
-            };
-            return setTimeout(callback, 1000);
+          if (bet) {
+            $(".btn-tradeoffer").remove();
+            if (array[1] === false) {
+              return $("#inventory-modal .bet-status").html("<i class=\"fa fa-times\"></i> You were too slow and the time has expired.");
+            } else {
+              $("#inventory-modal .bet-status").html("<i class=\"fa fa-heart\"></i> It was a pleasure to bet with you!");
+              callback = function() {
+                return window.open("http://" + window.location.host + "/bet/" + match + "/", "_self");
+              };
+              return setTimeout(callback, 1000);
+            }
+          }
+        } else if (array[0] === "payout") {
+          if (array[1] === "error") {
+            $(".btn-payout").html("<i class=\"fa fa-times-circle\"></i> Payout");
+            return payout = false;
+          } else if (array[1] === "processing") {
+            return $(".btn-payout").html("<i class=\"fa fa-spin fa-circle-o-notch\"></i> Payout");
           }
         }
       };
@@ -135,11 +203,24 @@
         match = $(this).data("match");
       });
       $("#inventory-modal").on("show.bs.modal", function(e) {
-        $("#inventory-modal .modal-body").html("<p class=\"connection-status\"> <i class=\"fa fa-spinner fa-spin\"></i> Establishing connection with bot </p>");
+        payout = false;
+        bet = true;
+        $("#inventory-modal .modal-body").html("<p class=\"connection-status\"> <i class=\"fa fa-circle-o-notch fa-spin\"></i> Establishing connection with bot </p>");
       });
       $("#inventory-modal").on("shown.bs.modal", function(e) {
         var json;
-        json = JSON.stringify(["hello", steamID]);
+        json = JSON.stringify(["inventory", steamID]);
+        socket.send(json);
+      });
+      $("#inventory-modal").on("hide.bs.modal", function(e) {
+        bet = false;
+      });
+      $(".btn-payout").on("click", function() {
+        var bat, json;
+        $(".btn-payout").html("<i class=\"fa fa-spin fa-circle-o-notch\"></i> Payout");
+        bat = false;
+        payout = true;
+        json = JSON.stringify(["payout", steamID, betID]);
         socket.send(json);
       });
     }
@@ -321,9 +402,14 @@
         $(".editMatch-button").on("click", function() {
           var array;
           array = $(this).data("json");
+          console.log(array);
           $('#editMatch-form [name="team1"]').val(array["team1"]["id"]);
           $('#editMatch-form [name="team2"]').val(array["team2"]["id"]);
-          $('#editMatch-form [name="stream"]').val(array["stream"]);
+          $('#editMatch-form [name="channel"]').val(array["channel"]);
+          $('#editMatch-form [name="ip"]').val(array["ip"]);
+          $('#editMatch-form [name="port"]').val(array["port"]);
+          $('#editMatch-form [name="rcon"]').val(array["rcon"]);
+          $('#editMatch-form [name="logsecret"]').val(array["logsecret"]);
           $("#editMatch-modal").modal("show");
           $('#editMatch-form').submit(function() {
             $.ajax({

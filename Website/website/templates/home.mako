@@ -19,6 +19,6 @@
 </div>
 <div class="container bets">
   %for match in c.matches:
-    ${partials.bet(match)}
+    ${partials.match(match)}
   %endfor
 </div>

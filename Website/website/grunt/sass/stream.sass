@@ -60,29 +60,36 @@ body
           &.active
             background-color: $component-active-bg
             border-color: $component-active-bg
-          padding: 5px
+          padding: 4px 0
           background-color: $design-panel
           border-bottom-left-radius: 0px
           min-height: 60px
           .logs-kill
             display: inline-block
             clear: both
+            padding: 5px 0
             .logs-weapon
               display: block
               float: left
               margin: 0 5px
             .logs-player
-              display: block
+              display: inline-block
+              overflow: hidden
+              white-space: nowrap
               float: left
-              padding: 10px 0
+              padding: 3.5px 0
+              width: 105px
+              max-width: 105px
+              min-width: 105px
+              text-align: center
               span
-                display: inline-block
-                margin-bottom: 3px
+                vertical-align: top
               .avatar-sm
                 vertical-align: bottom
+                margin-bottom: 3px
                 margin-right: 4px
           .logs-capture
-            padding: 11px 0
+            padding: 12px 0
             font-size: 1.05em
             font-weight: bold
         @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max)
@@ -91,7 +98,21 @@ body
           .logs-item:nth-child(-n+4)
             display: block
             min-height: 134px
+            .logs-kill
+              .logs-player
+                width: 100%
+                max-width: 100%
+                min-width: 100%
             .logs-weapon, .logs-player
               float: none
             .logs-capture
               padding: 24px 0
+        @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max)
+          .logs-kill
+            .logs-player
+              max-width: $screen-sm-max
+              min-width: $screen-sm-min
+        @media screen and (max-width: $screen-xs-max)
+          .logs-kill
+            .logs-player
+              max-width: $screen-xs-max

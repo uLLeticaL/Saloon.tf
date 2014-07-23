@@ -1,4 +1,4 @@
-import logging
+import logging, simplejson as json
 
 from sqlalchemy.sql.expression import tuple_
 from pylons import request, response, session, tmpl_context as c, url
@@ -35,45 +35,56 @@ class BetController(BaseController):
     c.match = {}
     c.match = {}
     c.match["id"] = RMatch.id
+    c.match["status"] = RMatch.status
+    c.match["time"] = RMatch.time
+    if RMatch.Stream:
+      c.match["stream"] = RMatch.Stream.channel
+      c.match["logs"] = bool(RMatch.Stream.ip)
     c.match["league"] = {}
     c.match["league"]["id"] = RMatch.League.id
     c.match["league"]["name"] = RMatch.League.name
     c.match["league"]["type"] = RMatch.League.type
     c.match["league"]["region"] = RMatch.League.region
     c.match["league"]["colour"] = RMatch.League.colour
+    c.match["bet"] = False
     c.match["bets"] = []
-    c.match["ownbet"] = False
 
-    c.match["teams"] = []
-    for RTeam in [RMatch.Team1, RMatch.Team2]:
+    c.match["teamsOrder"] = []
+    c.match["teams"] = {}
+
+    betsTotal = 0
+    for meta in [[RMatch.Team1, RMatch.BetsTotal1, RMatch.points1, RMatch.points1 > RMatch.points2], [RMatch.Team2, RMatch.BetsTotal2, RMatch.points2, RMatch.points2 > RMatch.points1]]:
+      RTeam = meta[0]
+      RBetsTotal = meta[1]
       team = {}
       team["id"] = RTeam.id
       team["name"] = RTeam.name
+      team["won"] = meta[3]
+      team["points"] = meta[2]
       team["bets"] = {}
-      c.match["teams"].append(team)
-
-    betsTotal = 0
-    for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
+      team["bets"]["value"] = RBetsTotal.value
       betsTotal += RBetsTotal.value
-      c.match["teams"][team]["bets"]["value"] = RBetsTotal.value
+      c.match["teamsOrder"].append(RTeam.id)
+      c.match["teams"][RTeam.id] = team
+
     if betsTotal > 0:
-      for team in c.match["teams"]:
+      for team in c.match["teams"].values():
         team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
     else:
-      for team in c.match["teams"]:
+      for team in c.match["teams"].values():
         team["bets"]["percentage"] = 0
+    c.match["teamsJson"] = json.dumps(c.match["teams"])
 
-    if c.user:
-      RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == user[0].id, db.Bets.match == RMatch.id)).first()
+    if user:
+      RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == RUser.id, db.Bets.match == RMatch.id)).first()
       if RBet:
-        c.match["ownbet"] = {}
-        c.match["ownbet"]["user"] = {}
-        c.match["ownbet"]["user"]["id"] = RUser.id
-        c.match["ownbet"]["team"] = {}
-        c.match["ownbet"]["team"]["id"] = RBet.team
-        c.match["ownbet"]["team"]["name"] = RMatch.Team1.name if RMatch.Team1.id == RBet.team else RMatch.Team2.name
-        c.match["ownbet"]["groups"] = RBet.groups
-
+        c.match["bet"] = RBet.team
+        c.match["betGroups"] = RBet.groups
+        c.match["betStatus"] = RBet.status
+        if RBet.status == 1 or RBet.status == 2:
+          c.match["wonGroups"] = RBet.wonGroups
+        if RBet.status == 2:
+          c.match["betOffer"] = RBet.offerID
     return render('/bet.mako')
 
   def switch(self, betID):

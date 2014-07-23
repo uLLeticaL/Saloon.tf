@@ -105,22 +105,28 @@
           <a class="btn btn-md btn-primary" data-toggle="modal" data-target="#addTeam-modal"><i class="fa fa-plus-circle"></i> Add</a>
         </div>
       </div>
-      %for id, team in enumerate(c.teams):
-        <div class="well team team-${team["id"]}">
-          <img class="team-avatar" src="/images/teams/${team["id"]}.jpg">
-          <div class="details">
-            <h3><i class="fa fa-users"></i> ${team["name"]}</h3>
-            <h3><i class="fa fa-globe"></i> ${team["country"]}</h3>
-            <h3><i class="fa fa-trophy"></i> ${c.league["name"]} &bull; ${c.league["region"]} &bull; ${c.league["type"]}</h3>
-          </div>
-          <div class="pull-right">
-            <div class="btn-group btn-block">
-              <button class="btn btn-md btn-primary editTeam-button" data-json='${team["json"]}'><i class="fa fa-pencil"></i> Edit</button>
-              <button class="btn btn-md btn-primary removeTeam-button" data-id="${team["id"]}"><i class="fa fa-times-circle"></i> Remove</button>
+      %if c.teams:
+        %for id, team in enumerate(c.teams):
+          <div class="well team team-${team["id"]}">
+            <img class="team-avatar" src="/images/teams/${team["id"]}.jpg">
+            <div class="details">
+              <h3><i class="fa fa-users"></i> ${team["name"]}</h3>
+              <h3><i class="fa fa-globe"></i> ${team["country"]}</h3>
+              <h3><i class="fa fa-trophy"></i> ${c.league["name"]} &bull; ${c.league["region"]} &bull; ${c.league["type"]}</h3>
+            </div>
+            <div class="pull-right">
+              <div class="btn-group btn-block">
+                <button class="btn btn-md btn-primary editTeam-button" data-json='${team["json"]}'><i class="fa fa-pencil"></i> Edit</button>
+                <button class="btn btn-md btn-primary removeTeam-button" data-id="${team["id"]}"><i class="fa fa-times-circle"></i> Remove</button>
+              </div>
             </div>
           </div>
+        %endfor
+      %else:
+        <div class="well text-center">
+          Please use the top toolbar to add a new fixture.
         </div>
-      %endfor
+      %endif
     </div>
   </div>
 </div>

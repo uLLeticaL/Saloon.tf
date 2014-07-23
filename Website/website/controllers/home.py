@@ -29,37 +29,48 @@ class HomeController(BaseController):
     for RMatch in RMatches:
       match = {}
       match["id"] = RMatch.id
+      match["status"] = RMatch.status
+      match["time"] = RMatch.time
       match["league"] = {}
       match["league"]["id"] = RMatch.League.id
       match["league"]["name"] = RMatch.League.name
       match["league"]["type"] = RMatch.League.type
       match["league"]["region"] = RMatch.League.region
       match["league"]["colour"] = RMatch.League.colour
-      match["ownbet"] = False
+      match["bet"] = False
 
-      match["teams"] = []
-      for RTeam in [RMatch.Team1, RMatch.Team2]:
+      match["teamsOrder"] = []
+      match["teams"] = {}
+
+      betsTotal = 0
+      for meta in [[RMatch.Team1, RMatch.BetsTotal1, RMatch.points1, RMatch.points1 > RMatch.points2], [RMatch.Team2, RMatch.BetsTotal2, RMatch.points2, RMatch.points2 > RMatch.points1]]:
+        RTeam = meta[0]
+        RBetsTotal = meta[1]
         team = {}
         team["id"] = RTeam.id
         team["name"] = RTeam.name
+        team["won"] = meta[3]
+        team["points"] = meta[2]
         team["bets"] = {}
-        match["teams"].append(team)
+        team["bets"]["value"] = RBetsTotal.value
+        betsTotal += RBetsTotal.value
+        match["teamsOrder"].append(RTeam.id)
+        match["teams"][RTeam.id] = team
 
       betsTotal = 0
-      for team, RBetsTotal in enumerate([RMatch.BetsTotal1, RMatch.BetsTotal2]):
+      for RBetsTotal in [RMatch.BetsTotal1, RMatch.BetsTotal2]:
         betsTotal += RBetsTotal.value
-        match["teams"][team]["bets"]["value"] = RBetsTotal.value
+        match["teams"][RBetsTotal.team]["bets"]["value"] = RBetsTotal.value
       if betsTotal > 0:
-        for team in match["teams"]:
+        for team in match["teams"].values():
           team["bets"]["percentage"] = int(round(float(team["bets"]["value"]) / float(betsTotal) * 100))
       else:
-        for team in match["teams"]:
+        for team in match["teams"].values():
           team["bets"]["percentage"] = 0
 
       if c.user:
         RBet = db.Session.query(db.Bets).filter(and_(db.Bets.user == user[0].id, db.Bets.match == RMatch.id)).first()
         if RBet:
-          match["ownbet"] = {"team": {"id": RBet.team}}
+          match["bet"] = RBet.team
       c.matches.append(match)
-
     return render('/home.mako')

@@ -41,9 +41,9 @@ class ApiController(BaseController):
     RMatch = db.Session.query(db.Matches).filter(db.Matches.id == betID).first()
     if user:
       RUser = user[0]
-      RBets = db.Session.query(db.Bets).filter(and_(db.Bets.match == betID, db.Bets.user != RUser.id)).order_by(db.Bets.id.desc()).limit(limit).offset(offset).all()
+      RBets = db.Session.query(db.BetsDetailed).filter(and_(db.BetsDetailed.match == betID, db.BetsDetailed.user != RUser.id)).order_by(db.BetsDetailed.id.desc()).limit(limit).offset(offset).all()
     else:
-      RBets = db.Session.query(db.Bets).filter(db.Bets.match == betID).order_by(db.Bets.id.desc()).limit(limit).offset(offset).all()
+      RBets = db.Session.query(db.BetsDetailed).filter(db.BetsDetailed.match == betID).order_by(db.BetsDetailed.id.desc()).limit(limit).offset(offset).all()
 
     bets = []
     for RBet in RBets:
@@ -55,6 +55,9 @@ class ApiController(BaseController):
       bet["team"]["id"] = RBet.team
       bet["team"]["name"] = RMatch.Team1.name if RMatch.Team1.id == RBet.team else RMatch.Team2.name
       bet["groups"] = RBet.groups
+      bet["status"] = RBet.status
+      if RBet.status == 1 or RBet.status == 2:
+        bet["wonGroups"] = RBet.wonGroups
       bets.append(bet)
     return json.dumps(bets)
 

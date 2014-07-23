@@ -363,8 +363,10 @@ class ManageController(BaseController):
         for RMatch in RMatches:
           match = {}
           match["id"] = RMatch.id
-          match["stream"] = RMatch.stream
-          match["won"] = RMatch.won
+          match["channel"] = RMatch.Stream.channel
+          match["ip"] = RMatch.Stream.ip
+          match["port"] = RMatch.Stream.port
+          match["logsecret"] = RMatch.Stream.logsecret
 
           match["team1"] = {}
           match["team1"]["id"] = RMatch.Team1.id
@@ -403,10 +405,12 @@ class ManageController(BaseController):
         RMatch = db.Matches(league=leagueID, team1=request.params["team1"], team2=request.params["team2"], stream=request.params["stream"])
         db.Session.add(RMatch)
         db.Session.commit()
-        RBetsTotal1 = db.BetsTotal(match=RMatch.id, team=request.params["team1"], keys=0, metal=0)
-        RBetsTotal2 = db.BetsTotal(match=RMatch.id, team=request.params["team2"], keys=0, metal=0)
+        RBetsTotal1 = db.BetsTotal(match=RMatch.id, team=request.params["team1"], value=0, groups=[])
+        RBetsTotal2 = db.BetsTotal(match=RMatch.id, team=request.params["team2"], value=0, groups=[])
         db.Session.add(RBetsTotal1)
         db.Session.add(RBetsTotal2)
+        RStream = db.Streams(match=RMatch.id, channel=request.params["channel"], ip=request.params["ip"], port=request.params["port"], rcon=request.params["rcon"], logsecret=request.params["logsecret"])
+        db.Session.add(RStream)
         db.Session.commit()
         return redirect("/manage/matches/")
       else:
@@ -425,7 +429,11 @@ class ManageController(BaseController):
           RMatch.league = leagueID
           RMatch.team1 = request.params["team1"]
           RMatch.team2 = request.params["team2"]
-          RMatch.stream = request.params["stream"]
+          RMatch.Stream.channel = request.params["channel"]
+          RMatch.Stream.ip = request.params["ip"]
+          RMatch.Stream.port = request.params["port"]
+          RMatch.Stream.rcon = request.params["rcon"]
+          RMatch.Stream.logsecret = request.params["logsecret"]
           db.Session.commit()
           success = True
           message = "Changed selected match."

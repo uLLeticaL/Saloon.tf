@@ -1,4 +1,4 @@
-/*! Saloon.tf's CSS. Generated at 2014-07-22 */
+/*! Saloon.tf's CSS. Generated at 2014-07-23 */
 
 /*! normalize.css v3.0.1 | MIT License | git.io/normalize */
 html {
@@ -9442,7 +9442,7 @@ body .stream-row.has-panel .logs .logs-header .avatar-sm {
   margin-left: 4px;
   margin-right: 4px; }
 body .stream-row.has-panel .logs .logs-item {
-  padding: 5px;
+  padding: 4px 0;
   background-color: #1f1403;
   border-bottom-left-radius: 0px;
   min-height: 60px; }
@@ -9451,23 +9451,30 @@ body .stream-row.has-panel .logs .logs-item.active {
   border-color: #2f2015; }
 body .stream-row.has-panel .logs .logs-item .logs-kill {
   display: inline-block;
-  clear: both; }
+  clear: both;
+  padding: 5px 0; }
 body .stream-row.has-panel .logs .logs-item .logs-kill .logs-weapon {
   display: block;
   float: left;
   margin: 0 5px; }
 body .stream-row.has-panel .logs .logs-item .logs-kill .logs-player {
-  display: block;
-  float: left;
-  padding: 10px 0; }
-body .stream-row.has-panel .logs .logs-item .logs-kill .logs-player span {
   display: inline-block;
-  margin-bottom: 3px; }
+  overflow: hidden;
+  white-space: nowrap;
+  float: left;
+  padding: 3.5px 0;
+  width: 105px;
+  max-width: 105px;
+  min-width: 105px;
+  text-align: center; }
+body .stream-row.has-panel .logs .logs-item .logs-kill .logs-player span {
+  vertical-align: top; }
 body .stream-row.has-panel .logs .logs-item .logs-kill .logs-player .avatar-sm {
   vertical-align: bottom;
+  margin-bottom: 3px;
   margin-right: 4px; }
 body .stream-row.has-panel .logs .logs-item .logs-capture {
-  padding: 11px 0;
+  padding: 12px 0;
   font-size: 1.05em;
   font-weight: bold; }
 @media screen and (min-width: 992px) and (max-width: 1199px) {
@@ -9476,10 +9483,21 @@ body .stream-row.has-panel .logs .logs-item .logs-capture {
   body .stream-row.has-panel .logs .logs-item:nth-child(-n+4) {
     display: block;
     min-height: 134px; }
+  body .stream-row.has-panel .logs .logs-item:nth-child(-n+4) .logs-kill .logs-player {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%; }
   body .stream-row.has-panel .logs .logs-item:nth-child(-n+4) .logs-weapon, body .stream-row.has-panel .logs .logs-item:nth-child(-n+4) .logs-player {
     float: none; }
   body .stream-row.has-panel .logs .logs-item:nth-child(-n+4) .logs-capture {
     padding: 24px 0; } }
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  body .stream-row.has-panel .logs .logs-kill .logs-player {
+    max-width: 991px;
+    min-width: 768px; } }
+@media screen and (max-width: 767px) {
+  body .stream-row.has-panel .logs .logs-kill .logs-player {
+    max-width: 767px; } }
 
 body .manage .well {
   overflow: auto; }
